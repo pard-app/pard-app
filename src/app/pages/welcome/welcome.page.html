@@ -1,0 +1,47 @@
+<ion-header class="ion-no-border ion-padding">
+  <img src="./assets/images/logo.svg" alt="pard.app" class="logo" />
+
+  <div class="languages">
+    <img
+      src="./assets/images/flags/united-kingdom.svg"
+      alt="English"
+      (click)="setLanguage('en')"
+    />
+    <img
+      src="./assets/images/flags/lithuania.svg"
+      alt="Lietuvių"
+      (click)="setLanguage('lt')"
+    />
+    <img
+      src="./assets/images/flags/latvia.svg"
+      alt="Latviešu"
+      (click)="setLanguage('lv')"
+    />
+  </div>
+  <svg
+    class="decoration"
+    version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    x="0px"
+    y="0px"
+    viewBox="10 0 40 60"
+    xml:space="preserve"
+    preserveAspectRatio="none"
+  >
+    <path d="M0 0 V5 H5 C25 5 25 20 45 20 S65 5 85 5 H90 V0 Z" />
+  </svg>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="welcome ion-text-center">
+    <h1>
+      {{ "INTRO_TITLE" | translate }}
+    </h1>
+    <p>{{ "INTRO_TEXT" | translate }}</p>
+  </div>
+
+  <ion-button expand="block" href="https://pard.lt" shape="round">
+    {{ "LEARN_MORE" | translate }}
+  </ion-button>
+</ion-content>

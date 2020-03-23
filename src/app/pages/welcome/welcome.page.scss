@@ -1,0 +1,36 @@
+ion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.languages {
+
+    img {
+        width: 30px;
+        margin: 6px;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}
+
+.decoration {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    fill: rgb(238, 243, 255);
+    color: rgb(238, 243, 255);
+    background-color: var(--page-background);
+    shape-rendering: geometricprecision;
+    height: 250px;
+    width: 100%;
+}
+
+.welcome {
+    h1 {
+        font-size: 2rem;
+    }
+}
