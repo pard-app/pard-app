@@ -1,0 +1,7 @@
+{
+  "name": "pard-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
