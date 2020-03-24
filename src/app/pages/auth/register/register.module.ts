@@ -4,11 +4,11 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { IonicModule } from "@ionic/angular";
 
-import { LoginPageRoutingModule } from "./login-routing.module";
+import { RegisterPageRoutingModule } from "./register-routing.module";
 
-import { LoginPage } from "./login.page";
+import { RegisterPage } from "./register.page";
 import { TranslateModule } from "@ngx-translate/core";
-import { ComponentsModule } from "../../../features/components/components.module";
+import { ComponentsModule } from "src/app/features/components/components.module";
 
 @NgModule({
   imports: [
@@ -17,9 +17,9 @@ import { ComponentsModule } from "../../../features/components/components.module
     IonicModule,
     TranslateModule,
     ReactiveFormsModule,
-    LoginPageRoutingModule,
-    ComponentsModule
+    ComponentsModule,
+    RegisterPageRoutingModule
   ],
-  declarations: [LoginPage]
+  declarations: [RegisterPage]
 })
-export class LoginPageModule {}
+export class RegisterPageModule {}

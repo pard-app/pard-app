@@ -31,7 +31,8 @@ h2,
 h3,
 h4,
 h5,
-h6 {
+h6,
+ion-title {
     font-family: var(--ion-font-family-headings);
     font-weight: 900;
 }
@@ -39,4 +40,12 @@ h6 {
 .logo {
     width: 150px;
     display: inline-block;
+}
+
+.title {
+    text-align: center;
+}
+
+.description {
+    margin-bottom: 0;
 }

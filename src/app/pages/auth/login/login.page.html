@@ -1,9 +1,62 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>login</ion-title>
+    <ion-title>{{ "LOG_IN" | translate }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/"
+        [text]="'BACK' | translate"
+      ></ion-back-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="ion-padding">
+  <h1 class="title">
+    {{ "WELCOME_BACK" | translate }}
+  </h1>
+  <form [formGroup]="loginForm" (ngSubmit)="login()">
+    <ion-list lines="full">
+      <ion-item>
+        <ion-label position="floating">{{ "EMAIL" | translate }}</ion-label>
+        <ion-input
+          type="email"
+          formControlName="email"
+          clearInput
+          autocapitalize="off"
+          inputmode="email"
+        ></ion-input>
+      </ion-item>
 
+      <ion-item>
+        <ion-label position="floating">{{ "PASSWORD" | translate }}</ion-label>
+        <app-toggle-password>
+          <ion-input type="password" formControlName="password"></ion-input>
+        </app-toggle-password>
+      </ion-item>
+    </ion-list>
+
+    <ion-row class="ion-margin-vertical">
+      <ion-col>
+        <ion-button
+          type="submit"
+          expand="block"
+          shape="round"
+          [disabled]="!loginForm.valid"
+          >{{ "LOG_IN" | translate }}</ion-button
+        ></ion-col
+      >
+    </ion-row>
+
+    <ion-row>
+      <ion-button fill="clear" [routerLink]="['/forgot']">
+        {{ "FORGOT_PASSWORD" | translate }}
+      </ion-button>
+      <!-- <ion-button
+        fill="clear"
+        [routerLink]="['/auth/register']"
+      >
+        {{ "SIGN_UP" | translate }}
+      </ion-button> -->
+    </ion-row>
+  </form>
 </ion-content>

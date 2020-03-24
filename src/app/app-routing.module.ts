@@ -1,16 +1,28 @@
 import { NgModule } from "@angular/core";
 import { PreloadAllModules, RouterModule, Routes } from "@angular/router";
+import {
+  redirectUnauthorizedTo,
+  redirectLoggedInTo,
+  AngularFireAuthGuard
+} from "@angular/fire/auth-guard";
+
+const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(["login"]);
+const redirectLoggedInToItems = () => redirectLoggedInTo(["app/listings"]);
 
 const routes: Routes = [
   {
-    path: "app",
-    loadChildren: () =>
-      import("./pages/tabs/tabs.module").then(m => m.TabsPageModule)
-  },
-  {
     path: "",
     loadChildren: () =>
-      import("./pages/welcome/welcome.module").then(m => m.WelcomePageModule)
+      import("./pages/welcome/welcome.module").then(m => m.WelcomePageModule),
+    canActivate: [AngularFireAuthGuard],
+    data: { authGuardPipe: redirectLoggedInToItems }
+  },
+  {
+    path: "app",
+    loadChildren: () =>
+      import("./pages/tabs/tabs.module").then(m => m.TabsPageModule),
+    canActivate: [AngularFireAuthGuard],
+    data: { authGuardPipe: redirectUnauthorizedToLogin }
   },
   {
     path: "login",
@@ -18,9 +30,11 @@ const routes: Routes = [
       import("./pages/auth/login/login.module").then(m => m.LoginPageModule)
   },
   {
-    path: "signup",
+    path: "register",
     loadChildren: () =>
-      import("./pages/auth/signup/signup.module").then(m => m.SignupPageModule)
+      import("./pages/auth/register/register.module").then(
+        m => m.RegisterPageModule
+      )
   },
   {
     path: "forgot",
