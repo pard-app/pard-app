@@ -4,6 +4,14 @@
     <ion-buttons slot="start">
       <ion-back-button [text]="'BACK' | translate"></ion-back-button>
     </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="view = !view">
+        <ion-icon
+          slot="icon-only"
+          [name]="view? 'albums' : 'list-circle'"
+        ></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 <ion-content>
@@ -11,7 +19,52 @@
     @todo: Add virtual scroll when item height issue is fixed.
     https://github.com/ionic-team/ionic/issues/18409 
   -->
-  <ion-list>
+  <ion-list *ngIf="view">
+    <ion-item-sliding *ngFor="let item of listings | async">
+      <ion-item-options side="start" slot="icon-only">
+        <ion-item-option slot="icon-only"
+          ><ion-icon
+            color="primary"
+            [name]="item.published ? 'eye-off' : 'eye'"
+            size="large"
+            (click)="publishListing(item, !item.published)"
+          ></ion-icon
+        ></ion-item-option>
+      </ion-item-options>
+
+      <ion-item lines="full" class="ion-padding">
+        <ion-row [class]="item.published ? 'active' : 'inactive'">
+          <ion-col size="8">
+            <div>
+              <small>{{ item.date | date }}</small>
+              <h5>{{ item.title }}</h5>
+              <p>{{ item.description }}</p>
+              <ion-chip outline="true">{{item.price | currency }}</ion-chip>
+            </div>
+          </ion-col>
+          <ion-col size="4">
+            <ion-img
+              *ngIf="item.image"
+              [src]="item.image"
+              [alt]="item.title"
+            ></ion-img>
+          </ion-col>
+        </ion-row>
+      </ion-item>
+      <ion-item-options side="end">
+        <ion-item-option slot="icon-only"
+          ><ion-icon
+            color="danger"
+            name="trash"
+            size="large"
+            (click)="deleteListing(item)"
+          ></ion-icon
+        ></ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+  <ion-list *ngIf="!view">
     <ion-item-sliding *ngFor="let item of listings | async">
       <ion-item-options side="start" slot="icon-only">
         <ion-item-option slot="icon-only"

@@ -1,4 +1,5 @@
-ion-card {
+ion-card,
+ion-row {
     width: 100%;
 }
 
@@ -28,4 +29,8 @@ ion-item-option {
 
 .inactive {
     opacity: 0.3;
+}
+
+h5 {
+    margin: 0;
 }
