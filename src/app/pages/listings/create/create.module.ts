@@ -1,12 +1,12 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { IonicModule } from "@ionic/angular";
 
-import { ListingsPageRoutingModule } from "./listings-routing.module";
+import { CreatePageRoutingModule } from "./create-routing.module";
 
-import { ListingsPage } from "./listings.page";
+import { CreatePage } from "./create.page";
 import { TranslateModule } from "@ngx-translate/core";
 
 @NgModule({
@@ -15,8 +15,9 @@ import { TranslateModule } from "@ngx-translate/core";
     FormsModule,
     IonicModule,
     TranslateModule,
-    ListingsPageRoutingModule
+    ReactiveFormsModule,
+    CreatePageRoutingModule
   ],
-  declarations: [ListingsPage]
+  declarations: [CreatePage]
 })
-export class ListingsPageModule {}
+export class CreatePageModule {}

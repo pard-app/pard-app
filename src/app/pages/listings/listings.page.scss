@@ -1,0 +1,31 @@
+ion-card {
+    width: 100%;
+}
+
+ion-img {
+    margin-bottom: 10px;
+}
+
+ion-card-title {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+ion-chip {
+    margin: 0 0 0 auto;
+}
+
+ion-item-options {
+    border: none;
+}
+
+ion-item-option {
+    background: transparent;
+}
+
+.inactive {
+    opacity: 0.3;
+}

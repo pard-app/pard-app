@@ -44,7 +44,6 @@ export class RegisterPage implements OnInit {
       location: new FormControl(),
       company: new FormControl(),
       description: new FormControl(),
-      image: new FormControl(),
       phone: new FormControl(),
       bank: new FormControl(),
       terms: new FormControl(false, Validators.requiredTrue)

@@ -87,5 +87,7 @@
   "COUNTRY": "Country",
   "CITY": "City",
   "COMPANY": "Company",
-  "BANK_ACCOUNT": "Bank account number"
+  "BANK_ACCOUNT": "Bank account number",
+  "LISTINGS": "Listings",
+  "PUBLISH": "Publish"
 }

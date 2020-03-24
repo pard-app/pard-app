@@ -1,0 +1,82 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ "NEW_LISTING" | translate }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="app/listings"
+        [text]="'BACK' | translate"
+      ></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="listingForm" (ngSubmit)="createListing()">
+    <ion-img [src]="image"></ion-img>
+
+    <ion-list lines="full">
+      <ion-progress-bar
+        type="indeterminate"
+        *ngIf="uploadInProgress"
+      ></ion-progress-bar>
+      <ion-button color="secondary" expand="block">
+        <ion-icon class="btn-icon" slot="icon-only" name="camera"></ion-icon>
+        <input
+          type="file"
+          class="file-input"
+          (change)="selectImage($event)"
+          accept="image/*"
+        />
+      </ion-button>
+
+      <ion-item>
+        <ion-label position="floating">{{ "TITLE" | translate }}</ion-label>
+        <ion-input type="text" formControlName="title" clearInput></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating"
+          >{{ "DESCRIPTION" | translate }}</ion-label
+        >
+        <ion-input
+          type="text"
+          formControlName="description"
+          clearInput
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">{{ "PRICE" | translate }}</ion-label>
+        <ion-input type="number" formControlName="price" clearInput></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">{{ "STOCK" | translate }}</ion-label>
+        <ion-input
+          type="number"
+          formControlName="stock"
+          clearInput
+          min="1"
+          step="1"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>{{ "PUBLISH" | translate}}</ion-label>
+        <ion-checkbox formControlName="published"></ion-checkbox>
+      </ion-item>
+    </ion-list>
+
+    <ion-row class="ion-margin-vertical">
+      <ion-col>
+        <ion-button
+          type="submit"
+          expand="block"
+          shape="round"
+          [disabled]="!listingForm.valid"
+          >{{ "CREATE" | translate }}</ion-button
+        ></ion-col
+      >
+    </ion-row>
+  </form>
+</ion-content>

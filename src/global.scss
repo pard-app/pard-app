@@ -32,7 +32,8 @@ h3,
 h4,
 h5,
 h6,
-ion-title {
+ion-title,
+ion-card-title {
     font-family: var(--ion-font-family-headings);
     font-weight: 900;
 }
@@ -48,4 +49,12 @@ ion-title {
 
 .description {
     margin-bottom: 0;
+}
+
+
+.file-input {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }
