@@ -12,7 +12,7 @@ import { Observable } from "rxjs";
 export class ListingsPage implements OnInit {
   constructor(public photoService: PhotoService, private data: DataService) {}
   listings: Observable<Array<ListingModel>>;
-  public view: boolean = false;
+  public view: boolean = true;
 
   ngOnInit() {
     this.listings = this.data.getMyListings();
