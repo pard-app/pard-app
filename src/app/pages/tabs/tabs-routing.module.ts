@@ -13,6 +13,11 @@ const routes: Routes = [
           import("../listings/listings.module").then(m => m.ListingsPageModule)
       },
       {
+        path: "profile",
+        loadChildren: () =>
+          import("../profile/profile.module").then(m => m.ProfilePageModule)
+      },
+      {
         path: "",
         redirectTo: "listings",
         pathMatch: "full"

@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ "MY_PROFILE" | translate }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button [text]="'BACK' | translate"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-grid fixed *ngIf="vendor|async as item">
+    <ion-row>
+      <ion-col size="12">
+        <ion-img [src]="item.image"></ion-img>
+
+        <h1>{{item.company}}</h1>
+        <h5>{{item.address}}, {{item.city}}, {{item.country | translate}}</h5>
+        <p>{{item.description}}</p>
+        <p>
+          <small>
+            {{item.bank}}, {{item.regno}}
+          </small>
+        </p>
+        <a [href]="'callto:' + item.phone">{{item.phone}}</a>
+      </ion-col>
+    </ion-row>
+
+    <ion-button
+      [routerLink]="'edit'"
+      expand="block"
+      shape="round"
+      class="ion-margin-vertical"
+    >
+      {{ "EDIT" | translate }}
+    </ion-button>
+  </ion-grid>
+</ion-content>

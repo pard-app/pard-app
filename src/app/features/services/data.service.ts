@@ -3,6 +3,8 @@ import { AngularFirestore } from "@angular/fire/firestore";
 import { ListingModel } from "../models/listing.model";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { AngularFireStorage } from "@angular/fire/storage";
+import { VendorModel } from "../models/vendor.model";
+import { map } from "rxjs/operators";
 
 @Injectable({
   providedIn: "root"
@@ -102,5 +104,12 @@ export class DataService {
           return url;
         });
       });
+  }
+
+  getMyProfile() {
+    return this.afStore
+      .collection("vendors")
+      .doc<VendorModel>(this.afAuth.auth.currentUser.uid)
+      .valueChanges();
   }
 }

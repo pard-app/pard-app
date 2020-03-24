@@ -89,5 +89,8 @@
   "COMPANY": "Company",
   "BANK_ACCOUNT": "Bank account number",
   "LISTINGS": "Listings",
-  "PUBLISH": "Publish"
+  "PUBLISH": "Publish",
+  "REGISTRATION_NO": "Registration number",
+  "PROFILE": "Profile",
+  "EDIT_PROFILE": "Edit profile"
 }

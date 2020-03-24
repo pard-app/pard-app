@@ -4,7 +4,6 @@ import { Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { LoadingController } from "@ionic/angular";
-import { Phone } from "src/app/features/models/phone.model";
 import { AngularFirestore } from "@angular/fire/firestore";
 import { AngularFireStorage } from "@angular/fire/storage";
 
@@ -46,6 +45,7 @@ export class RegisterPage implements OnInit {
       description: new FormControl(),
       phone: new FormControl(),
       bank: new FormControl(),
+      regno: new FormControl(),
       terms: new FormControl(false, Validators.requiredTrue)
     });
 
@@ -67,6 +67,7 @@ export class RegisterPage implements OnInit {
       description: this.registerForm.value.description,
       phone: this.registerForm.value.phone,
       bank: this.registerForm.value.bank,
+      regno: this.registerForm.value.regno,
       registered: new Date().getTime()
     };
 

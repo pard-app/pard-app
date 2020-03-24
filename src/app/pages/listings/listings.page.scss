@@ -34,3 +34,15 @@ ion-item-option {
 h5 {
     margin: 0;
 }
+
+.list-true {
+    ion-img {
+        width: 100px;
+        float: left;
+        margin: 0 10px 0 0;
+    }
+
+    ion-card {
+        margin: 10px 15px;
+    }
+}
