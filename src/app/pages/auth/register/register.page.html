@@ -17,7 +17,9 @@
   <form [formGroup]="registerForm" (ngSubmit)="register()">
     <ion-list lines="full">
       <ion-item>
-        <ion-label position="floating">{{ "EMAIL" | translate }}</ion-label>
+        <ion-label position="floating" class="required"
+          >{{ "EMAIL" | translate }}</ion-label
+        >
         <ion-input
           type="email"
           formControlName="email"
@@ -28,13 +30,17 @@
       </ion-item>
 
       <ion-item>
-        <ion-label position="floating">{{ "PASSWORD" | translate }}</ion-label>
+        <ion-label position="floating" class="required"
+          >{{ "PASSWORD" | translate }}</ion-label
+        >
         <app-toggle-password>
           <ion-input type="password" formControlName="password"></ion-input>
         </app-toggle-password>
       </ion-item>
       <ion-item>
-        <ion-label position="floating">{{ "COUNTRY" | translate }}</ion-label>
+        <ion-label position="floating" class="required"
+          >{{ "COUNTRY" | translate }}</ion-label
+        >
         <ion-select formControlName="country">
           <ion-select-option *ngFor="let country of countries" [value]="country"
             >{{ country | translate }}</ion-select-option
@@ -74,7 +80,7 @@
         <input type="file" (change)="selectImage($event)" accept="image/*" />
       </ion-item>
       <ion-item>
-        <ion-label class="ion-text-wrap"
+        <ion-label class="ion-text-wrap required"
           >{{ "FOLLOW_LEGAL_TERMS" | translate}}</ion-label
         >
         <ion-checkbox formControlName="terms" required></ion-checkbox>

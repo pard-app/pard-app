@@ -34,27 +34,12 @@ export class DataService {
   }
 
   async createListing(listing: ListingModel, image?: any): Promise<any> {
-    if (image) {
-      return this.afStorage
-        .ref(`listings/${this.afAuth.auth.currentUser.uid}/${this.uuidv4()}`)
-        .putString(image, "data_url")
-        .then(data => {
-          data.ref.getDownloadURL().then(imageUrl => {
-            this.afStore.collection<ListingModel>("listings").add({
-              vendor: this.afAuth.auth.currentUser.uid,
-              date: new Date().getTime(),
-              image: imageUrl,
-              ...listing
-            });
-          });
-        });
-    } else {
-      return this.afStore.collection<ListingModel>("listings").add({
-        vendor: this.afAuth.auth.currentUser.uid,
-        date: new Date().getTime(),
-        ...listing
-      });
-    }
+    return this.afStore.collection<ListingModel>("listings").add({
+      vendor: this.afAuth.auth.currentUser.uid,
+      date: new Date().getTime(),
+      image: image ? image : "",
+      ...listing
+    });
   }
 
   async deleteListing(listing: ListingModel) {
@@ -107,13 +92,13 @@ export class DataService {
   async uploadImage(image: any) {
     const id = this.uuidv4();
     const ref = `listings/${this.afAuth.auth.currentUser.uid}/${id}`;
-    const resized = `listings/${this.afAuth.auth.currentUser.uid}/${id}_300x300`;
+    const resized = `listings/${this.afAuth.auth.currentUser.uid}/${id}_500x500`;
 
     return this.afStorage
       .ref(ref)
       .putString(image, "data_url")
       .then(() => {
-        return this.keepTrying(10, resized).then(url => {
+        return this.keepTrying(15, resized).then(url => {
           return url;
         });
       });

@@ -13,10 +13,10 @@
 <ion-content class="ion-padding">
   <form [formGroup]="listingForm" (ngSubmit)="createListing()">
     <ion-img [src]="image"></ion-img>
-
     <ion-list lines="full">
       <ion-progress-bar
         type="indeterminate"
+        color="secondary"
         *ngIf="uploadInProgress"
       ></ion-progress-bar>
       <ion-button color="secondary" expand="block">
@@ -30,12 +30,14 @@
       </ion-button>
 
       <ion-item>
-        <ion-label position="floating">{{ "TITLE" | translate }}</ion-label>
+        <ion-label position="floating" class="required"
+          >{{ "TITLE" | translate }}</ion-label
+        >
         <ion-input type="text" formControlName="title" clearInput></ion-input>
       </ion-item>
 
       <ion-item>
-        <ion-label position="floating"
+        <ion-label position="floating" class="required"
           >{{ "DESCRIPTION" | translate }}</ion-label
         >
         <ion-input
@@ -46,12 +48,16 @@
       </ion-item>
 
       <ion-item>
-        <ion-label position="floating">{{ "PRICE" | translate }}</ion-label>
+        <ion-label position="floating" class="required"
+          >{{ "PRICE" | translate }}</ion-label
+        >
         <ion-input type="number" formControlName="price" clearInput></ion-input>
       </ion-item>
 
       <ion-item>
-        <ion-label position="floating">{{ "STOCK" | translate }}</ion-label>
+        <ion-label position="floating" class="required"
+          >{{ "STOCK" | translate }}</ion-label
+        >
         <ion-input
           type="number"
           formControlName="stock"

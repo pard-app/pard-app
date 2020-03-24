@@ -58,3 +58,7 @@ ion-card-title {
     width: 100%;
     height: 100%;
 }
+
+.required::after {
+    content: " *";
+}

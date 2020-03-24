@@ -41,6 +41,8 @@ export class CreatePage implements OnInit {
       .createListing(this.listingForm.value, this.image)
       .then(() => {
         this.router.navigate(["app/listings"]);
+
+        this.listingForm.reset();
         loading.dismiss();
       })
       .catch(err => {
