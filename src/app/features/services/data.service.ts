@@ -5,6 +5,7 @@ import { AngularFireAuth } from "@angular/fire/auth";
 import { AngularFireStorage } from "@angular/fire/storage";
 import { VendorModel } from "../models/vendor.model";
 import { map } from "rxjs/operators";
+import { OrderModel } from "../models/order.model";
 
 @Injectable({
   providedIn: "root"
@@ -28,6 +29,38 @@ export class DataService {
   getMyListings() {
     return this.afStore
       .collection<ListingModel>("listings", ref =>
+        ref
+          .where("vendor", "==", `${this.afAuth.auth.currentUser.uid}`)
+          .orderBy("date", "desc")
+      )
+      .valueChanges({ idField: "id" });
+  }
+
+  getActiveOrders() {
+    return this.afStore
+      .collection<OrderModel>("orders", ref =>
+        ref
+          .where("vendor", "==", `${this.afAuth.auth.currentUser.uid}`)
+          .where("completed", "==", false)
+          .orderBy("date", "desc")
+      )
+      .valueChanges({ idField: "id" });
+  }
+
+  getCompletedOrders() {
+    return this.afStore
+      .collection<OrderModel>("orders", ref =>
+        ref
+          .where("vendor", "==", `${this.afAuth.auth.currentUser.uid}`)
+          .where("completed", "==", true)
+          .orderBy("date", "desc")
+      )
+      .valueChanges({ idField: "id" });
+  }
+
+  getAllOrders() {
+    return this.afStore
+      .collection<OrderModel>("orders", ref =>
         ref
           .where("vendor", "==", `${this.afAuth.auth.currentUser.uid}`)
           .orderBy("date", "desc")

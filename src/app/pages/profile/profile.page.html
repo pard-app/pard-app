@@ -21,7 +21,16 @@
             {{item.bank}}, {{item.regno}}
           </small>
         </p>
-        <a [href]="'callto:' + item.phone">{{item.phone}}</a>
+        <a [href]="'tel:' + item.phone">{{item.phone}}</a>
+      </ion-col>
+
+      <ion-col *ngIf="item.delivery">
+        <h5>{{"DELIVERY" | translate}}</h5>
+        <p>
+          {{"DELIVERY_COSTS" | translate}}: {{item.delivery_costs}}
+          <br />
+          {{"DELIVERY_NOTE" | translate}}: {{ item.delivery_note}}
+        </p>
       </ion-col>
     </ion-row>
 
@@ -32,6 +41,16 @@
       class="ion-margin-vertical"
     >
       {{ "EDIT" | translate }}
+    </ion-button>
+
+    <ion-button
+      (click)="logout()"
+      expand="block"
+      shape="round"
+      class="ion-margin-vertical"
+      color="warning"
+    >
+      {{ "LOG_OUT" | translate }}
     </ion-button>
   </ion-grid>
 </ion-content>

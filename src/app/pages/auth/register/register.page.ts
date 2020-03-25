@@ -46,6 +46,9 @@ export class RegisterPage implements OnInit {
       phone: new FormControl(),
       bank: new FormControl(),
       regno: new FormControl(),
+      delivery: new FormControl(),
+      delivery_costs: new FormControl(),
+      delivery_note: new FormControl(),
       terms: new FormControl(false, Validators.requiredTrue)
     });
 
@@ -68,6 +71,9 @@ export class RegisterPage implements OnInit {
       phone: this.registerForm.value.phone,
       bank: this.registerForm.value.bank,
       regno: this.registerForm.value.regno,
+      delivery: this.registerForm.value.delivery,
+      delivery_costs: this.registerForm.value.delivery_costs,
+      delivery_note: this.registerForm.value.delivery_note,
       registered: new Date().getTime()
     };
 

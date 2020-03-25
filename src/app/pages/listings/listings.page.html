@@ -21,15 +21,20 @@
   -->
   <ion-list [class]="'list-' + view">
     <ion-item-sliding *ngFor="let item of listings | async">
-      <ion-item-options side="start" slot="icon-only">
-        <ion-item-option slot="icon-only"
-          ><ion-icon
+      <ion-item-options side="start">
+        <ion-item-option (click)="publishListing(item, !item.published)">
+          <ion-icon
             color="primary"
             [name]="item.published ? 'eye-off' : 'eye'"
             size="large"
-            (click)="publishListing(item, !item.published)"
-          ></ion-icon
-        ></ion-item-option>
+            slot="start"
+          ></ion-icon>
+          <ion-label>
+            <ion-text color="primary"
+              >{{ (item.published ? "HIDE" : "PUBLISH") | translate }}</ion-text
+            ></ion-label
+          >
+        </ion-item-option>
       </ion-item-options>
 
       <ion-item lines="none" (click)="editListing(item)">

@@ -35,7 +35,10 @@ export class EditPage implements OnInit {
       description: new FormControl(),
       phone: new FormControl(),
       bank: new FormControl(),
-      regno: new FormControl()
+      regno: new FormControl(),
+      delivery: new FormControl(),
+      delivery_costs: new FormControl(),
+      delivery_note: new FormControl()
     });
   }
 
@@ -89,7 +92,10 @@ export class EditPage implements OnInit {
           description: new FormControl(data.description),
           phone: new FormControl(data.phone),
           bank: new FormControl(data.bank),
-          regno: new FormControl(data.regno)
+          regno: new FormControl(data.regno),
+          delivery: new FormControl(data.delivery),
+          delivery_costs: new FormControl(data.delivery_costs),
+          delivery_note: new FormControl(data.delivery_note)
         });
       });
   }

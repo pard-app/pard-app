@@ -85,6 +85,34 @@
         <ion-label position="fixed">{{ "LOGO" | translate }}</ion-label>
         <input type="file" (change)="selectImage($event)" accept="image/*" />
       </ion-item>
+
+      <ion-item>
+        <ion-label class="ion-text-wrap"
+          >{{ "I_OFFER_DELIVERY" | translate}}</ion-label
+        >
+        <ion-checkbox formControlName="delivery"></ion-checkbox>
+      </ion-item>
+      <ion-item *ngIf="registerForm.value.delivery">
+        <ion-label position="floating"
+          >{{ "DELIVERY_COSTS" | translate }}</ion-label
+        >
+        <ion-input
+          type="number"
+          [placeholder]="'DELIVERY_COSTS_PLACEHOLDER' | translate"
+          formControlName="delivery_costs"
+        ></ion-input>
+      </ion-item>
+      <ion-item *ngIf="registerForm.value.delivery">
+        <ion-label position="floating"
+          >{{ "DELIVERY_NOTE" | translate }}
+        </ion-label>
+        <ion-input
+          type="text"
+          [placeholder]="'DELIVERY_NOTE_PLACEHOLDER' | translate"
+          formControlName="delivery_note"
+        ></ion-input>
+      </ion-item>
+
       <ion-item>
         <ion-label class="ion-text-wrap required"
           >{{ "FOLLOW_LEGAL_TERMS" | translate}}</ion-label

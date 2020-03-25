@@ -62,3 +62,11 @@ ion-card-title {
 .required::after {
     content: " *";
 }
+
+ion-item-options {
+    border: none;
+}
+
+ion-item-option {
+    background: transparent;
+}

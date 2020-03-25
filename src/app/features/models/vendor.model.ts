@@ -10,4 +10,7 @@ export class VendorModel {
   phone: string;
   registered: string;
   regno: string;
+  delivery: boolean;
+  delivery_costs: number;
+  delivery_note: string;
 }
