@@ -22,14 +22,15 @@
   <ion-list [class]="'list-' + view">
     <ion-item-sliding *ngFor="let item of listings | async">
       <ion-item-options side="start">
-        <ion-item-option (click)="publishListing(item, !item.published)">
+        <ion-item-option type="button">
           <ion-icon
             color="primary"
             [name]="item.published ? 'eye-off' : 'eye'"
             size="large"
             slot="start"
+            (click)="publishListing(item, !item.published)"
           ></ion-icon>
-          <ion-label>
+          <ion-label (click)="publishListing(item, !item.published)">
             <ion-text color="primary"
               >{{ (item.published ? "HIDE" : "PUBLISH") | translate }}</ion-text
             ></ion-label
