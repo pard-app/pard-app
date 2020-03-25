@@ -18,6 +18,11 @@ const routes: Routes = [
           import("../profile/profile.module").then(m => m.ProfilePageModule)
       },
       {
+        path: "orders",
+        loadChildren: () =>
+          import("../orders/orders.module").then(m => m.OrdersPageModule)
+      },
+      {
         path: "",
         redirectTo: "listings",
         pathMatch: "full"

@@ -58,6 +58,18 @@ export class DataService {
       .update({ published: action });
   }
 
+  async updateListing(listing: ListingModel, res: any) {
+    return this.afStore
+      .collection("listings")
+      .doc<ListingModel>(listing.id)
+      .update({
+        title: res.title,
+        description: res.description,
+        price: res.price,
+        stock: res.stock
+      });
+  }
+
   // https://stackoverflow.com/questions/58977241/how-to-get-the-resized-downloadurl-after-upload-with-firebase-storage-web-sdk
 
   delay(t, v?) {
