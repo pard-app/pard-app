@@ -7,12 +7,17 @@ ion-img {
     margin-bottom: 10px;
 }
 
-ion-card-title {
+.title {
     font-size: 1.1rem;
+}
+
+.details {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
+
+    ion-badge {
+        margin-right: 5px;
+    }
 }
 
 ion-chip {
@@ -39,6 +44,19 @@ ion-item-options {
     }
 
     ion-card {
-        margin: 10px 15px;
+        margin: 0 0 10px 0;
+        border: 1px solid var(--ion-color-light);
+        box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 4px;
     }
+
+    ion-card-content {
+        padding-top: 10px;
+    }
+
+    @media (max-width: 1024px) {
+        ion-card-content {
+            clear: both;
+        }
+    }
+
 }

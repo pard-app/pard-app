@@ -31,7 +31,7 @@
   "STOCK": "Stock",
   "CATEGORIES": "Categories",
   "REGISTER": "Register",
-  "FOLLOW_LEGAL_TERMS": "I will follow all legal procedures while using this app.",
+  "FOLLOW_LEGAL_TERMS": "I will use this app in accordance with the laws of the country.",
   "NAME_OF_BUSINESS": "Name of business",
   "ADDRESS": "Address",
   "PHONE": "Phone",
@@ -86,6 +86,7 @@
   "CONFIRM": "Confirm",
   "REJECT": "Reject",
   "CREATE": "Create",
+
   "DELETE": "Delete",
   "DELETE_CONFIRMATION": "Are you sure you want to delete this listing?"
 }

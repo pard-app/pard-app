@@ -11,78 +11,101 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <form [formGroup]="listingForm" (ngSubmit)="createListing()">
-    <ion-img [src]="image"></ion-img>
-    <ion-list lines="full">
-      <ion-progress-bar
-        type="indeterminate"
-        color="secondary"
-        *ngIf="uploadInProgress"
-      ></ion-progress-bar>
-      <ion-button color="secondary" expand="block">
-        <ion-icon class="btn-icon" slot="icon-only" name="camera"></ion-icon>
-        <input
-          type="file"
-          class="file-input"
-          (change)="selectImage($event)"
-          accept="image/*"
-        />
-      </ion-button>
+  <ion-grid fixed>
+    <ion-row>
+      <ion-col size="12">
+        <form [formGroup]="listingForm">
+          <ion-img [src]="image"></ion-img>
+          <ion-list lines="full">
+            <ion-progress-bar
+              type="indeterminate"
+              color="secondary"
+              *ngIf="uploadInProgress"
+            ></ion-progress-bar>
+            <ion-button color="secondary" expand="block">
+              <ion-icon
+                class="btn-icon"
+                slot="icon-only"
+                name="camera"
+              ></ion-icon>
+              <input
+                type="file"
+                class="file-input"
+                (change)="selectImage($event)"
+                accept="image/*"
+              />
+            </ion-button>
 
-      <ion-item>
-        <ion-label position="floating" class="required"
-          >{{ "TITLE" | translate }}</ion-label
-        >
-        <ion-input type="text" formControlName="title" clearInput></ion-input>
-      </ion-item>
+            <ion-item>
+              <ion-label position="floating" class="required"
+                >{{ "TITLE" | translate }}</ion-label
+              >
+              <ion-input
+                type="text"
+                formControlName="title"
+                clearInput
+              ></ion-input>
+            </ion-item>
 
-      <ion-item>
-        <ion-label position="floating" class="required"
-          >{{ "DESCRIPTION" | translate }}</ion-label
-        >
-        <ion-input
-          type="text"
-          formControlName="description"
-          clearInput
-        ></ion-input>
-      </ion-item>
+            <ion-item>
+              <ion-label position="floating" class="required"
+                >{{ "DESCRIPTION" | translate }}</ion-label
+              >
+              <ion-input
+                type="text"
+                formControlName="description"
+                clearInput
+              ></ion-input>
+            </ion-item>
 
-      <ion-item>
-        <ion-label position="floating" class="required"
-          >{{ "PRICE" | translate }}</ion-label
-        >
-        <ion-input type="number" formControlName="price" clearInput></ion-input>
-      </ion-item>
+            <ion-item>
+              <ion-label position="floating" class="required"
+                >{{ "PRICE" | translate }}</ion-label
+              >
+              <ion-input
+                type="number"
+                formControlName="price"
+                clearInput
+              ></ion-input>
+            </ion-item>
 
-      <ion-item>
-        <ion-label position="floating" class="required"
-          >{{ "STOCK" | translate }}</ion-label
-        >
-        <ion-input
-          type="number"
-          formControlName="stock"
-          clearInput
-          min="1"
-          step="1"
-        ></ion-input>
-      </ion-item>
+            <ion-item>
+              <ion-label position="floating" class="required"
+                >{{ "STOCK" | translate }}</ion-label
+              >
+              <ion-input
+                type="number"
+                formControlName="stock"
+                clearInput
+                min="1"
+                step="1"
+              ></ion-input>
+            </ion-item>
 
-      <ion-item>
-        <ion-label>{{ "PUBLISH" | translate}}</ion-label>
-        <ion-checkbox formControlName="published"></ion-checkbox>
-      </ion-item>
-    </ion-list>
+            <ion-item>
+              <ion-label>{{ "PUBLISH" | translate}}</ion-label>
+              <ion-checkbox formControlName="published"></ion-checkbox>
+            </ion-item>
+          </ion-list>
+        </form>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
 
-    <ion-row class="ion-margin-vertical">
+<ion-footer>
+  <ion-toolbar>
+    <ion-row>
       <ion-col>
         <ion-button
           type="submit"
           expand="block"
           shape="round"
           [disabled]="!listingForm.valid"
+          (click)="createListing()"
           >{{ "CREATE" | translate }}</ion-button
         ></ion-col
       >
     </ion-row>
-  </form>
-</ion-content>
+  </ion-toolbar>
+</ion-footer>

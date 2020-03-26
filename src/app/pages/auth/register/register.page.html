@@ -11,150 +11,173 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <div class="languages ion-text-center">
-    <img
-      src="./assets/images/flags/united-kingdom.svg"
-      alt="English"
-      (click)="setLanguage('en')"
-    />
-    <img
-      src="./assets/images/flags/lithuania.svg"
-      alt="Lietuvių"
-      (click)="setLanguage('lt')"
-    />
-    <img
-      src="./assets/images/flags/latvia.svg"
-      alt="Latviešu"
-      (click)="setLanguage('lv')"
-    />
-  </div>
-
-  <h1 class="title">
-    {{ "CREATE_ACCOUNT" | translate }}
-  </h1>
-  <form [formGroup]="registerForm" (ngSubmit)="register()">
-    <ion-list lines="full">
-      <ion-item>
-        <ion-label position="floating" class="required"
-          >{{ "EMAIL" | translate }}</ion-label
-        >
-        <ion-input
-          type="email"
-          formControlName="email"
-          clearInput
-          autocapitalize="off"
-          inputmode="email"
-        ></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="floating" class="required"
-          >{{ "PASSWORD" | translate }}</ion-label
-        >
-        <app-toggle-password>
-          <ion-input type="password" formControlName="password"></ion-input>
-        </app-toggle-password>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating" class="required"
-          >{{ "COUNTRY" | translate }}</ion-label
-        >
-        <ion-select formControlName="country">
-          <ion-select-option *ngFor="let country of countries" [value]="country"
-            >{{ country | translate }}</ion-select-option
-          >
-        </ion-select>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating">{{ "CITY" | translate }}</ion-label>
-        <ion-input type="text" formControlName="city"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating">{{ "ADDRESS" | translate }}</ion-label>
-        <ion-input type="text" formControlName="address"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating">{{ "COMPANY" | translate }}</ion-label>
-        <ion-input type="text" formControlName="company"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating"
-          >{{ "DESCRIPTION" | translate }}</ion-label
-        >
-        <ion-input type="text" formControlName="description"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating">{{ "PHONE" | translate }}</ion-label>
-        <ion-input type="text" formControlName="phone"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating"
-          >{{ "BANK_ACCOUNT" | translate }}</ion-label
-        >
-        <ion-input type="text" formControlName="bank"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating"
-          >{{ "REGISTRATION_NO" | translate }}</ion-label
-        >
-        <ion-input type="text" formControlName="regno"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="fixed">{{ "LOGO" | translate }}</ion-label>
-        <input type="file" (change)="selectImage($event)" accept="image/*" />
-      </ion-item>
-
-      <ion-item>
-        <ion-label class="ion-text-wrap"
-          >{{ "I_OFFER_DELIVERY" | translate}}</ion-label
-        >
-        <ion-checkbox formControlName="delivery"></ion-checkbox>
-      </ion-item>
-      <ion-item *ngIf="registerForm.value.delivery">
-        <ion-label position="floating"
-          >{{ "DELIVERY_COSTS" | translate }}</ion-label
-        >
-        <ion-input
-          type="number"
-          [placeholder]="'DELIVERY_COSTS_PLACEHOLDER' | translate"
-          formControlName="delivery_costs"
-        ></ion-input>
-      </ion-item>
-      <ion-item *ngIf="registerForm.value.delivery">
-        <ion-label position="floating"
-          >{{ "DELIVERY_NOTE" | translate }}
-        </ion-label>
-        <ion-input
-          type="text"
-          [placeholder]="'DELIVERY_NOTE_PLACEHOLDER' | translate"
-          formControlName="delivery_note"
-        ></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label class="ion-text-wrap required"
-          >{{ "FOLLOW_LEGAL_TERMS" | translate}}</ion-label
-        >
-        <ion-checkbox formControlName="terms" required></ion-checkbox>
-      </ion-item>
-    </ion-list>
-
-    <ion-row class="ion-margin-vertical">
-      <ion-col>
-        <ion-button
-          type="submit"
-          expand="block"
-          shape="round"
-          [disabled]="!registerForm.valid"
-          >{{ "SIGN_UP" | translate }}</ion-button
-        ></ion-col
-      >
-    </ion-row>
-
+  <ion-grid fixed>
     <ion-row>
-      <ion-button fill="clear" [routerLink]="['/login']">
-        {{ "ALREADY_HAVE_AN_ACCOUNT" | translate }}
-      </ion-button>
+      <ion-col size="12">
+        <div class="languages ion-text-center">
+          <img
+            src="./assets/images/flags/united-kingdom.svg"
+            alt="English"
+            (click)="setLanguage('en')"
+          />
+          <img
+            src="./assets/images/flags/lithuania.svg"
+            alt="Lietuvių"
+            (click)="setLanguage('lt')"
+          />
+          <img
+            src="./assets/images/flags/latvia.svg"
+            alt="Latviešu"
+            (click)="setLanguage('lv')"
+          />
+        </div>
+
+        <h1 class="title">
+          {{ "CREATE_ACCOUNT" | translate }}
+        </h1>
+        <form [formGroup]="registerForm" (ngSubmit)="register()">
+          <ion-list lines="full">
+            <ion-item>
+              <ion-label position="floating" class="required"
+                >{{ "EMAIL" | translate }}</ion-label
+              >
+              <ion-input
+                type="email"
+                formControlName="email"
+                clearInput
+                autocapitalize="off"
+                inputmode="email"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="floating" class="required"
+                >{{ "PASSWORD" | translate }}</ion-label
+              >
+              <app-toggle-password>
+                <ion-input
+                  type="password"
+                  formControlName="password"
+                ></ion-input>
+              </app-toggle-password>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating" class="required"
+                >{{ "COUNTRY" | translate }}</ion-label
+              >
+              <ion-select formControlName="country">
+                <ion-select-option
+                  *ngFor="let country of countries"
+                  [value]="country"
+                  >{{ country | translate }}</ion-select-option
+                >
+              </ion-select>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating"
+                >{{ "CITY" | translate }}</ion-label
+              >
+              <ion-input type="text" formControlName="city"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating"
+                >{{ "ADDRESS" | translate }}</ion-label
+              >
+              <ion-input type="text" formControlName="address"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating"
+                >{{ "COMPANY" | translate }}</ion-label
+              >
+              <ion-input type="text" formControlName="company"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating"
+                >{{ "DESCRIPTION" | translate }}</ion-label
+              >
+              <ion-input type="text" formControlName="description"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating"
+                >{{ "PHONE" | translate }}</ion-label
+              >
+              <ion-input type="text" formControlName="phone"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating"
+                >{{ "BANK_ACCOUNT" | translate }}</ion-label
+              >
+              <ion-input type="text" formControlName="bank"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating"
+                >{{ "REGISTRATION_NO" | translate }}</ion-label
+              >
+              <ion-input type="text" formControlName="regno"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="fixed">{{ "LOGO" | translate }}</ion-label>
+              <input
+                type="file"
+                (change)="selectImage($event)"
+                accept="image/*"
+              />
+            </ion-item>
+
+            <ion-item>
+              <ion-label class="ion-text-wrap"
+                >{{ "I_OFFER_DELIVERY" | translate}}</ion-label
+              >
+              <ion-checkbox formControlName="delivery"></ion-checkbox>
+            </ion-item>
+            <ion-item *ngIf="registerForm.value.delivery">
+              <ion-label position="floating"
+                >{{ "DELIVERY_COSTS" | translate }}</ion-label
+              >
+              <ion-input
+                type="number"
+                [placeholder]="'DELIVERY_COSTS_PLACEHOLDER' | translate"
+                formControlName="delivery_costs"
+              ></ion-input>
+            </ion-item>
+            <ion-item *ngIf="registerForm.value.delivery">
+              <ion-label position="floating"
+                >{{ "DELIVERY_NOTE" | translate }}
+              </ion-label>
+              <ion-input
+                type="text"
+                [placeholder]="'DELIVERY_NOTE_PLACEHOLDER' | translate"
+                formControlName="delivery_note"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label class="ion-text-wrap required"
+                >{{ "FOLLOW_LEGAL_TERMS" | translate}}</ion-label
+              >
+              <ion-checkbox formControlName="terms" required></ion-checkbox>
+            </ion-item>
+          </ion-list>
+
+          <ion-row class="ion-margin-vertical">
+            <ion-col>
+              <ion-button
+                type="submit"
+                expand="block"
+                shape="round"
+                [disabled]="!registerForm.valid"
+                >{{ "SIGN_UP" | translate }}</ion-button
+              ></ion-col
+            >
+          </ion-row>
+
+          <ion-row>
+            <ion-button fill="clear" [routerLink]="['/login']">
+              {{ "ALREADY_HAVE_AN_ACCOUNT" | translate }}
+            </ion-button>
+          </ion-row>
+        </form>
+      </ion-col>
     </ion-row>
-  </form>
+  </ion-grid>
 </ion-content>

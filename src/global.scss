@@ -25,6 +25,17 @@
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
 
+img {
+    width: auto;
+}
+
+ion-img {
+    max-width: 500px;
+    max-height: 500px;
+    display: block;
+    margin: 0 auto;
+    overflow: hidden;
+}
 
 h1,
 h2,
