@@ -70,3 +70,29 @@ ion-item-options {
 ion-item-option {
     background: transparent;
 }
+
+.alert-button {
+    &.danger {
+        color: var(--ion-color-danger);
+    }
+
+    &.secondary {
+        color: var(--ion-color-secondary);
+    }
+
+    &.success {
+        color: var(--ion-color-success);
+    }
+}
+
+.languages {
+
+    img {
+        width: 30px;
+        margin: 6px;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}

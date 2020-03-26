@@ -69,15 +69,33 @@ export class ListingsPage implements OnInit {
       ],
       buttons: [
         {
+          text: this.translate.instant("SAVE"),
+          cssClass: "success",
+          handler: res => {
+            this.data.updateListing(listing, res);
+          }
+        },
+        {
           text: this.translate.instant("CANCEL"),
           role: "cancel",
           cssClass: "secondary",
           handler: () => {}
         },
         {
-          text: this.translate.instant("SAVE"),
+          text: listing.published
+            ? this.translate.instant("HIDE")
+            : this.translate.instant("PUBLISH"),
           handler: res => {
-            this.data.updateListing(listing, res);
+            this.data.publishListing(listing, !listing.published);
+          }
+        },
+        {
+          text: this.translate.instant("DELETE"),
+          cssClass: "danger",
+          handler: res => {
+            if (confirm(this.translate.instant("DELETE_CONFIRMATION"))) {
+              this.data.deleteListing(listing);
+            }
           }
         }
       ]

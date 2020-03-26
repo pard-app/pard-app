@@ -114,5 +114,9 @@ export class RegisterPage implements OnInit {
     this.logo = event.target.files[0];
   }
 
+  setLanguage(language: string) {
+    this.translate.use(language);
+  }
+
   ngOnInit() {}
 }

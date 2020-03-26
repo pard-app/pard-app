@@ -11,6 +11,24 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <div class="languages ion-text-center">
+    <img
+      src="./assets/images/flags/united-kingdom.svg"
+      alt="English"
+      (click)="setLanguage('en')"
+    />
+    <img
+      src="./assets/images/flags/lithuania.svg"
+      alt="Lietuvių"
+      (click)="setLanguage('lt')"
+    />
+    <img
+      src="./assets/images/flags/latvia.svg"
+      alt="Latviešu"
+      (click)="setLanguage('lv')"
+    />
+  </div>
+
   <h1 class="title">
     {{ "CREATE_ACCOUNT" | translate }}
   </h1>

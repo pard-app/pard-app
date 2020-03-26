@@ -85,5 +85,7 @@
   "COMPLETE": "Pabeigt",
   "CONFIRM": "Apstiprināt",
   "REJECT": "Noraidīt",
-  "CREATE": "Izveidot"
+  "CREATE": "Izveidot",
+  "DELETE": "Dzēst",
+  "DELETE_CONFIRMATION": "Vai patiešām dzēst šo sludinājumu?"
 }

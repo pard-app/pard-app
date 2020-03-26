@@ -86,5 +86,7 @@
   "COMPLETE": "Baigti",
   "CONFIRM": "Patvirtinti",
   "REJECT": "Atmesti",
-  "CREATE": "Sukurti"
+  "CREATE": "Sukurti",
+  "DELETE": "Pašalinti",
+  "DELETE_CONFIRMATION": "Ar jūs tikrai norite pašalinti šią prekę?"
 }
