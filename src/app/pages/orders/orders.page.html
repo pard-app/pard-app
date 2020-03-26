@@ -7,19 +7,41 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <ion-list lines="none">
-    <ion-list-header>
+  <ion-list lines="full">
+    <ion-list-header *ngIf="!viewingAll">
       <ion-label>{{ "ACTIVE_ORDERS" | translate }}</ion-label>
-      <ion-button>{{ "SEE_COMPLETED" | translate }}</ion-button>
+      <ion-button (click)="viewingAll = !viewingAll"
+        >{{ "SEE_COMPLETED" | translate }}</ion-button
+      >
     </ion-list-header>
 
-    <ion-item *ngFor="let order of (orders | async)">
+    <ion-list-header *ngIf="viewingAll">
+      <ion-label>{{ "ALL_ORDERS" | translate }}</ion-label>
+      <ion-button (click)="viewingAll = !viewingAll"
+        >{{ "SEE_ACTIVE" | translate }}</ion-button
+      >
+    </ion-list-header>
+
+    <ion-item *ngFor="let order of (orders | async) | filter:viewingAll">
       <ion-item-sliding>
-        <ion-item>
-          {{ order | json }}
+        <ion-item class="order" (click)="viewOrder(order)">
+          <div>
+            <small>{{order.date | date }} </small>
+            <h1>{{order.orderNumber}}</h1>
+            <ion-chip color="primary" slot="start">
+              <ion-label>{{ order.sum | currency }}</ion-label>
+            </ion-chip>
+          </div>
+          <ion-badge slot="end" [class]="'status-' + order.status"
+            >{{ order.status | translate }}</ion-badge
+          >
         </ion-item>
         <ion-item-options side="start">
-          <ion-item-option type="button" (click)="completeOrder(order)">
+          <ion-item-option
+            type="button"
+            (click)="completeOrder(order.id)"
+            *ngIf="order.status == 'Confirmed'"
+          >
             <ion-label>
               <ion-text color="success"
                 >{{ "COMPLETE" | translate }}</ion-text
@@ -32,7 +54,10 @@
               slot="start"
             ></ion-icon>
           </ion-item-option>
-          <ion-item-option (click)="confirmOrder(order)">
+          <!-- <ion-item-option
+            (click)="updateOrder(order.id, 'Confirmed')"
+            *ngIf="order.status == 'New'"
+          >
             <ion-label>
               <ion-text color="primary"
                 >{{ "CONFIRM" | translate }}</ion-text
@@ -44,11 +69,14 @@
               name="checkmark-circle"
               slot="start"
             ></ion-icon>
-          </ion-item-option>
+          </ion-item-option> -->
         </ion-item-options>
 
-        <ion-item-options side="end">
-          <ion-item-option type="button" (click)="rejectOrder(order)">
+        <!-- <ion-item-options side="end">
+          <ion-item-option
+            type="button"
+            (click)="updateOrder(order.id, 'Rejected')"
+          >
             <ion-label>
               <ion-text color="danger"
                 >{{ "REJECT" | translate }}</ion-text
@@ -61,7 +89,7 @@
               slot="start"
             ></ion-icon>
           </ion-item-option>
-        </ion-item-options>
+        </ion-item-options> -->
       </ion-item-sliding>
     </ion-item>
   </ion-list>

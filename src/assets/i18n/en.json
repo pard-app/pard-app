@@ -88,5 +88,14 @@
   "CREATE": "Create",
 
   "DELETE": "Delete",
-  "DELETE_CONFIRMATION": "Are you sure you want to delete this listing?"
+  "DELETE_CONFIRMATION": "Are you sure you want to delete this listing?",
+  "ORDER_DETAILS": "Order details",
+  "CLOSE": "Close",
+  "BUYER": "Buyer",
+  "ITEMS": "Items",
+  "YES": "Yes",
+  "NO": "No",
+  "ALL_ORDERS": "All orders",
+  "COMPLETED_ORDERS": "Completed orders",
+  "SEE_ACTIVE": "See active"
 }

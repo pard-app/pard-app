@@ -6,6 +6,7 @@ import { AngularFireStorage } from "@angular/fire/storage";
 import { VendorModel } from "../models/vendor.model";
 import { map } from "rxjs/operators";
 import { OrderModel } from "../models/order.model";
+import { Observable } from "rxjs";
 
 @Injectable({
   providedIn: "root"
@@ -36,23 +37,11 @@ export class DataService {
       .valueChanges({ idField: "id" });
   }
 
-  getActiveOrders() {
+  getMyOrders() {
     return this.afStore
       .collection<OrderModel>("orders", ref =>
         ref
           .where("vendor", "==", `${this.afAuth.auth.currentUser.uid}`)
-          .where("completed", "==", false)
-          .orderBy("date", "desc")
-      )
-      .valueChanges({ idField: "id" });
-  }
-
-  getCompletedOrders() {
-    return this.afStore
-      .collection<OrderModel>("orders", ref =>
-        ref
-          .where("vendor", "==", `${this.afAuth.auth.currentUser.uid}`)
-          .where("completed", "==", true)
           .orderBy("date", "desc")
       )
       .valueChanges({ idField: "id" });
@@ -156,5 +145,28 @@ export class DataService {
       .collection("vendors")
       .doc<VendorModel>(this.afAuth.auth.currentUser.uid)
       .valueChanges();
+  }
+
+  getListingById(id: string) {
+    return this.afStore.doc("listings/" + id).valueChanges();
+  }
+
+  async updateOrder(id: string, status: string) {
+    let completed: boolean = false;
+    if (status === "Rejected") {
+      completed = true;
+    }
+
+    return this.afStore
+      .collection("orders")
+      .doc(id)
+      .update({ status: status, completed: completed });
+  }
+
+  async completeOrder(id: string) {
+    return this.afStore
+      .collection("orders")
+      .doc(id)
+      .update({ status: "Completed", completed: true });
   }
 }

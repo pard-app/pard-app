@@ -8,6 +8,8 @@ import { OrdersPageRoutingModule } from "./orders-routing.module";
 
 import { OrdersPage } from "./orders.page";
 import { TranslateModule } from "@ngx-translate/core";
+import { FilterPipe } from "../../features/pipes/filter.pipe";
+import { ViewPageModule } from "./view/view.module";
 
 @NgModule({
   imports: [
@@ -15,8 +17,9 @@ import { TranslateModule } from "@ngx-translate/core";
     FormsModule,
     IonicModule,
     TranslateModule,
+    // ViewPageModule,
     OrdersPageRoutingModule
   ],
-  declarations: [OrdersPage]
+  declarations: [OrdersPage, FilterPipe]
 })
 export class OrdersPageModule {}

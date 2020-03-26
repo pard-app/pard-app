@@ -1,0 +1,31 @@
+.order {
+    h1 {
+        font-size: 0.8rem;
+        margin: 5px 0;
+    }
+
+    ion-chip {
+        margin: 0 0 10px 0;
+    }
+}
+
+.status {
+    &-New {
+        background: var(--ion-color-tertiary);
+        color: var(--ion-color-darkest);
+    }
+
+    &-Confirmed {
+        background: var(--ion-color-primary);
+    }
+
+    &-Rejected {
+        background: var(--ion-color-danger);
+    }
+
+    &-Completed {
+        background: var(--ion-color-success);
+    }
+
+
+}

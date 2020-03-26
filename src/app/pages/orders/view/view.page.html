@@ -1,0 +1,83 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ "ORDER_DETAILS" | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="start" name="close"></ion-icon>
+        {{ "CLOSE" | translate }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <main class="order ion-padding">
+    <section class="details">
+      <small>{{order.date | date }}</small>
+      <h1>{{order.orderNumber}}</h1>
+
+      <ion-chip color="primary">
+        <ion-label>{{ order.sum | currency}}</ion-label>
+      </ion-chip>
+    </section>
+    <section class="buyer ion-margin-vertical">
+      <h5>{{ "BUYER" | translate }}</h5>
+      <p>
+        <strong><a [href]="'mailto:' + order.email">{{order.email}}</a></strong>
+        <br />
+        <a [href]="'tel:' + order.phone">{{order.phone }}</a> <br />
+        {{ order.address }} <br />
+        {{ "DELIVERY" | translate }}: {{ order.delivery ? ("YES" | translate) :
+        ("NO" | translate)}} <br />
+        <em>{{ order.comments }}</em>
+      </p>
+    </section>
+
+    <section class="listings ion-margin-vertical">
+      <h5>{{ "ITEMS" | translate }}</h5>
+      <ion-list lines="none">
+        <ion-item
+          *ngFor="let listing of listings"
+          class="ion-no-margin ion-no-padding"
+        >
+          <ion-avatar slot="start">
+            <ion-img [src]="listing.image"></ion-img>
+          </ion-avatar>
+          <ion-label>{{listing.title}}</ion-label>
+          <ion-badge color="primary" slot="end">{{listing.quantity}}</ion-badge>
+        </ion-item>
+      </ion-list>
+    </section>
+
+    <section class="actions">
+      <ion-button
+        expand="block"
+        color="success"
+        shape="round"
+        (click)="completeOrder(order.id)"
+        *ngIf="order.status == 'Confirmed'"
+      >
+        {{ "COMPLETE" | translate }}
+      </ion-button>
+
+      <div *ngIf="order.status == 'New'">
+        <ion-button
+          expand="block"
+          color="primary"
+          shape="round"
+          (click)="updateOrder(order.id, 'Confirmed')"
+        >
+          {{ "CONFIRM" | translate }}
+        </ion-button>
+        <ion-button
+          expand="block"
+          color="danger"
+          shape="round"
+          (click)="updateOrder(order.id, 'Rejected')"
+        >
+          {{ "REJECT" | translate }}
+        </ion-button>
+      </div>
+    </section>
+  </main>
+</ion-content>
