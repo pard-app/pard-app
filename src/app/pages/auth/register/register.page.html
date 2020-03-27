@@ -61,6 +61,36 @@
                 ></ion-input>
               </app-toggle-password>
             </ion-item>
+
+            <ion-item>
+              <ion-label position="floating" class="required"
+                >{{ "TITLE" | translate }}</ion-label
+              >
+              <ion-input
+                type="text"
+                formControlName="title"
+                autocapitalize="words"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="floating"
+                >{{ "DESCRIPTION" | translate }}</ion-label
+              >
+              <ion-input
+                type="text"
+                formControlName="description"
+                autocapitalize="sentences"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="floating"
+                >{{ "PHONE" | translate }}</ion-label
+              >
+              <ion-input type="text" formControlName="phone"></ion-input>
+            </ion-item>
+
             <ion-item>
               <ion-label position="floating" class="required"
                 >{{ "COUNTRY" | translate }}</ion-label
@@ -73,6 +103,7 @@
                 >
               </ion-select>
             </ion-item>
+
             <ion-item>
               <ion-label position="floating"
                 >{{ "CITY" | translate }}</ion-label
@@ -91,30 +122,29 @@
               >
               <ion-input type="text" formControlName="company"></ion-input>
             </ion-item>
-            <ion-item>
-              <ion-label position="floating"
-                >{{ "DESCRIPTION" | translate }}</ion-label
-              >
-              <ion-input type="text" formControlName="description"></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label position="floating"
-                >{{ "PHONE" | translate }}</ion-label
-              >
-              <ion-input type="text" formControlName="phone"></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label position="floating"
-                >{{ "BANK_ACCOUNT" | translate }}</ion-label
-              >
-              <ion-input type="text" formControlName="bank"></ion-input>
-            </ion-item>
+
             <ion-item>
               <ion-label position="floating"
                 >{{ "REGISTRATION_NO" | translate }}</ion-label
               >
-              <ion-input type="text" formControlName="regno"></ion-input>
+              <ion-input
+                type="text"
+                formControlName="regno"
+                autocapitalize="characters"
+              ></ion-input>
             </ion-item>
+
+            <ion-item>
+              <ion-label position="floating"
+                >{{ "BANK_ACCOUNT" | translate }}</ion-label
+              >
+              <ion-input
+                type="text"
+                formControlName="bank"
+                autocapitalize="characters"
+              ></ion-input>
+            </ion-item>
+
             <ion-item>
               <ion-label position="fixed">{{ "LOGO" | translate }}</ion-label>
               <input

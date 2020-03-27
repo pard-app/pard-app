@@ -13,4 +13,5 @@ export class VendorModel {
   delivery: boolean;
   delivery_costs: number;
   delivery_note: string;
+  title: string;
 }

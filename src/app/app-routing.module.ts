@@ -40,6 +40,11 @@ const routes: Routes = [
     path: "forgot",
     loadChildren: () =>
       import("./pages/auth/forgot/forgot.module").then(m => m.ForgotPageModule)
+  },
+  {
+    path: "tutorial",
+    loadChildren: () =>
+      import("./pages/tutorial/tutorial.module").then(m => m.TutorialPageModule)
   }
 ];
 @NgModule({

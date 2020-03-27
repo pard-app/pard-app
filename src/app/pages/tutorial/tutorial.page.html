@@ -1,0 +1,63 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ "TUTORIAL" | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-slides pager="true" [options]="slideOpts" autoHeight="true">
+    <ion-slide>
+      <h1>{{ "SLIDE_1_TITLE" | translate }}</h1>
+      <p>{{ "SLIDE_1_TEXT" | translate }}</p>
+      <ion-text color="danger">
+        <small>{{"DEVELOPMENT_NOTICE" | translate }}</small>
+      </ion-text>
+      <ion-button
+        (click)="nextSlide()"
+        expand="block"
+        shape="round"
+        class="ion-margin-vertical"
+      >
+        {{ "NEXT" | translate }}
+      </ion-button>
+    </ion-slide>
+    <ion-slide>
+      <img src="./assets/images/how-to/1.png" alt="" />
+      <h1>{{ "SLIDE_2_TITLE" | translate }}</h1>
+      <p>{{ "SLIDE_2_TEXT" | translate }}</p>
+      <ion-button (click)="nextSlide()" expand="block" shape="round">
+        {{ "NEXT" | translate }}
+      </ion-button>
+    </ion-slide>
+    <ion-slide>
+      <img src="./assets/images/how-to/2.png" alt="" />
+      <h1>{{ "SLIDE_3_TITLE" | translate }}</h1>
+      <p>{{ "SLIDE_3_TEXT" | translate }}</p>
+      <ion-button (click)="nextSlide()" expand="block" shape="round">
+        {{ "NEXT" | translate }}
+      </ion-button>
+    </ion-slide>
+    <ion-slide>
+      <img src="./assets/images/how-to/3.png" alt="" />
+      <h1>{{ "SLIDE_4_TITLE" | translate }}</h1>
+      <p>{{ "SLIDE_4_TEXT" | translate }}</p>
+      <ion-button (click)="nextSlide()" expand="block" shape="round">
+        {{ "NEXT" | translate }}
+      </ion-button>
+    </ion-slide>
+    <ion-slide>
+      <h1>{{ "SLIDE_5_TITLE" | translate }}</h1>
+      <p>{{ "SLIDE_5_TEXT" | translate }}</p>
+      <ion-button (click)="nextSlide()" expand="block" shape="round">
+        {{ "NEXT" | translate }}
+      </ion-button>
+    </ion-slide>
+    <ion-slide>
+      <h1>{{ "SLIDE_6_TITLE" | translate }}</h1>
+      <p>{{ "SLIDE_6_TEXT" | translate }}</p>
+      <ion-button [routerLink]="['/app']" expand="block" shape="round">
+        {{ "START" | translate }}
+      </ion-button>
+    </ion-slide>
+  </ion-slides>
+</ion-content>

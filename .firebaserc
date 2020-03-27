@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "pard-app"
+    "default: "pard-dev",
+    "dev": "pard-dev",
+    "prod": "pard-app"
   }
 }

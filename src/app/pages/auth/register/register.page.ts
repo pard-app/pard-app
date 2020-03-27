@@ -37,12 +37,13 @@ export class RegisterPage implements OnInit {
         "",
         Validators.compose([Validators.minLength(6), Validators.required])
       ),
-      country: new FormControl("Lithuania", Validators.required),
+      title: new FormControl("", Validators.required),
+      description: new FormControl(),
+      country: new FormControl("", Validators.required),
       city: new FormControl(),
       address: new FormControl(),
       location: new FormControl(),
       company: new FormControl(),
-      description: new FormControl(),
       phone: new FormControl(),
       bank: new FormControl(),
       regno: new FormControl(),
@@ -63,11 +64,12 @@ export class RegisterPage implements OnInit {
 
     const formData = {
       email: this.registerForm.value.email,
+      title: this.registerForm.value.title,
+      description: this.registerForm.value.description,
       country: this.registerForm.value.country,
       city: this.registerForm.value.city,
       address: this.registerForm.value.address,
       company: this.registerForm.value.company,
-      description: this.registerForm.value.description,
       phone: this.registerForm.value.phone,
       bank: this.registerForm.value.bank,
       regno: this.registerForm.value.regno,
@@ -93,7 +95,7 @@ export class RegisterPage implements OnInit {
                   image: imageUrl
                 });
                 loading.dismiss();
-                this.router.navigate(["app/listings"]);
+                this.router.navigate(["tutorial"]);
               });
             });
         } else {
@@ -101,7 +103,7 @@ export class RegisterPage implements OnInit {
             ...formData
           });
           loading.dismiss();
-          this.router.navigate(["app/listings"]);
+          this.router.navigate(["tutorial"]);
         }
       })
       .catch(err => {

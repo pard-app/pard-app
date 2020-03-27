@@ -9,19 +9,42 @@
 
 <ion-content class="ion-padding">
   <ion-grid fixed *ngIf="vendor|async as item">
+    <div class="languages ion-text-center">
+      <img
+        src="./assets/images/flags/united-kingdom.svg"
+        alt="English"
+        (click)="setLanguage('en')"
+      />
+      <img
+        src="./assets/images/flags/lithuania.svg"
+        alt="Lietuvių"
+        (click)="setLanguage('lt')"
+      />
+      <img
+        src="./assets/images/flags/latvia.svg"
+        alt="Latviešu"
+        (click)="setLanguage('lv')"
+      />
+    </div>
     <ion-row>
       <ion-col size="12">
         <ion-img [src]="item.image"></ion-img>
 
-        <h1>{{item.company}}</h1>
-        <h5>{{item.address}}, {{item.city}}, {{item.country | translate}}</h5>
+        <h1>{{item.title}}</h1>
         <p>{{item.description}}</p>
+
+        <h4>{{item.company}}</h4>
         <p>
           <small>
-            {{item.bank}}, {{item.regno}}
+            {{item.regno}} {{item.bank}}
           </small>
+          <br />
+          {{item.address}}
+          <br />{{item.city ? item.city + "," : ""}} {{item.country |
+          translate}}
+          <br />
+          <a [href]="'tel:' + item.phone">{{item.phone}}</a>
         </p>
-        <a [href]="'tel:' + item.phone">{{item.phone}}</a>
       </ion-col>
 
       <ion-col *ngIf="item.delivery">

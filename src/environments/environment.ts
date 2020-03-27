@@ -5,15 +5,15 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyBcDFmnE_2GGgrJwFCRI_Sz5x_7ktjOp9k",
-    authDomain: "pard-app.firebaseapp.com",
-    databaseURL: "https://pard-app.firebaseio.com",
-    projectId: "pard-app",
-    storageBucket: "pard-app.appspot.com",
-    messagingSenderId: "146692342733",
-    appId: "1:146692342733:web:8441318822dc983f80fa84",
-    measurementId: "G-DB639S9E3J",
-    gs: "gs://pard-app.appspot.com"
+    apiKey: "AIzaSyD9nUUR3U6sbOmJygwSOpCutTJybO_qEyY",
+    authDomain: "pard-dev.firebaseapp.com",
+    databaseURL: "https://pard-dev.firebaseio.com",
+    projectId: "pard-dev",
+    storageBucket: "pard-dev.appspot.com",
+    messagingSenderId: "796248555901",
+    appId: "1:796248555901:web:3804e973110dafadd04c14",
+    gs: "gs://pard-dev.appspot.com",
+    measurementId: "G-EV5CHRKTHM"
   }
 };
 

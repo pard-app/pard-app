@@ -29,6 +29,7 @@ export class EditPage implements OnInit {
     private data: DataService
   ) {
     this.editForm = new FormGroup({
+      title: new FormControl(),
       city: new FormControl(),
       address: new FormControl(),
       company: new FormControl(),
@@ -86,6 +87,7 @@ export class EditPage implements OnInit {
       .then(data => {
         this.logo = data.image;
         this.editForm = new FormGroup({
+          title: new FormControl(data.title),
           city: new FormControl(data.city),
           address: new FormControl(data.address),
           company: new FormControl(data.company),

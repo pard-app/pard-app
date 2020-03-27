@@ -43,6 +43,7 @@
               <ion-input
                 type="text"
                 formControlName="title"
+                autocapitalize="on"
                 clearInput
               ></ion-input>
             </ion-item>
@@ -54,6 +55,7 @@
               <ion-input
                 type="text"
                 formControlName="description"
+                autocapitalize="on"
                 clearInput
               ></ion-input>
             </ion-item>
@@ -81,7 +83,6 @@
                 step="1"
               ></ion-input>
             </ion-item>
-
             <ion-item>
               <ion-label>{{ "PUBLISH" | translate}}</ion-label>
               <ion-checkbox formControlName="published"></ion-checkbox>

@@ -4,6 +4,7 @@ import { VendorModel } from "src/app/features/models/vendor.model";
 import { Observable } from "rxjs";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { Router } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   selector: "app-profile",
@@ -16,7 +17,8 @@ export class ProfilePage implements OnInit {
   constructor(
     private data: DataService,
     private afAuth: AngularFireAuth,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
@@ -27,5 +29,8 @@ export class ProfilePage implements OnInit {
     this.afAuth.auth.signOut().then(() => {
       this.router.navigate(["/"]);
     });
+  }
+  setLanguage(language: string) {
+    this.translate.use(language);
   }
 }
