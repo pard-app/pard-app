@@ -238,3 +238,52 @@ const deleteFirebaseData = async (uid: string) => {
     });
   }
 };
+
+// New order e-mails
+const sendgridemail = require("@sendgrid/mail");
+sendgridemail.setApiKey(functions.config().sendgrid.apikey);
+
+export const newOrderEmail = functions
+  .region("europe-west1")
+  .firestore.document("orders/{orderID}") // any write to this node will trigger email
+  .onCreate(async (event, context) => {
+    await event.ref.get().then(orderDoc => {
+      const order = orderDoc.data();
+      if (order && order.vendor) {
+        return db
+          .collection("vendors")
+          .doc(order.vendor)
+          .get()
+          .then(vendorDoc => {
+            const vendor = vendorDoc.data();
+            if (vendor && vendor.email) {
+              const msg = {
+                to: vendor.email,
+                from: "noreply@pard.app",
+                subject: "New order in pard.app!",
+                templateId: "d-148343972117401ba415ad9eab113368",
+                substitutionWrappers: ["{{", "}}"],
+                substitutions: {
+                  name: order.name,
+                  address: order.address,
+                  comments: order.comments,
+                  email: order.email,
+                  phone: order.phone,
+                  sum: order.sum,
+                  orderNumber: order.orderNumber
+                }
+              };
+              return sendgridemail
+                .send(msg)
+                .then(() => {
+                  console.log("New order e-mail sent to: " + vendor.email);
+                })
+                .catch((err: any) => console.log(err));
+            }
+          });
+      } else {
+        console.log("Failed to send new order e-mail.");
+        return;
+      }
+    });
+  });
