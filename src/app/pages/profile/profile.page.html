@@ -36,7 +36,8 @@
         <h4>{{item.company}}</h4>
         <p>
           <small>
-            {{item.regno}} {{item.bank}}
+            {{item.regno}} <br />
+            {{item.bank}}
           </small>
           <br />
           {{item.address}}
@@ -57,22 +58,11 @@
       </ion-col>
     </ion-row>
 
-    <ion-button
-      [routerLink]="'edit'"
-      expand="block"
-      shape="round"
-      class="ion-margin-vertical"
-    >
+    <ion-button [routerLink]="'edit'" expand="block" shape="round">
       {{ "EDIT" | translate }}
     </ion-button>
 
-    <ion-button
-      (click)="logout()"
-      expand="block"
-      shape="round"
-      class="ion-margin-vertical"
-      color="warning"
-    >
+    <ion-button (click)="logout()" expand="block" shape="round" color="warning">
       {{ "LOG_OUT" | translate }}
     </ion-button>
   </ion-grid>

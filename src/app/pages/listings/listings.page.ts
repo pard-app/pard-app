@@ -26,7 +26,9 @@ export class ListingsPage implements OnInit {
   }
 
   async deleteListing(listing: ListingModel) {
-    await this.data.deleteListing(listing);
+    if (confirm(this.translate.instant("DELETE_CONFIRMATION"))) {
+      await this.data.deleteListing(listing);
+    }
   }
   async publishListing(listing: ListingModel, action: boolean) {
     await this.data.publishListing(listing, action);

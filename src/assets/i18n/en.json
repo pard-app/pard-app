@@ -86,7 +86,6 @@
   "CONFIRM": "Confirm",
   "REJECT": "Reject",
   "CREATE": "Create",
-
   "DELETE": "Delete",
   "DELETE_CONFIRMATION": "Are you sure you want to delete this listing?",
   "ORDER_DETAILS": "Order details",
@@ -106,7 +105,7 @@
   "SLIDE_3_TITLE": "Swipe actions",
   "SLIDE_3_TEXT": "Swipe a listing (or an order) left or right to access quick actions.",
   "SLIDE_4_TITLE": "Guidance for listings",
-  "SLIDE_4_TEXT": "We suggest that you post package or bundle deals instead of single items. Offer \"A basket of fruits\" instead of apples or oranges.",
+  "SLIDE_4_TEXT": "If you are selling items measured by weight, specify it in the title (e.g., \"Apples, 1kg\"). You can also try offering \"A basket of fruits\" instead of apples or oranges separately.",
   "SLIDE_5_TITLE": "Payments & delivery",
   "SLIDE_5_TEXT": "While in-app payments & delivery service is still in development, we will generate an invoice for your customers based on the data you provided. You are free to choose any delivery method you like.",
   "SLIDE_6_TITLE": "You are good to go!",

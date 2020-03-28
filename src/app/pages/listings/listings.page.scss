@@ -38,7 +38,8 @@ ion-item-options {
 
 .list-true {
     ion-img {
-        width: 100px;
+        width: 50%;
+        max-width: 250px;
         float: left;
         margin: 0 10px 0 0;
     }

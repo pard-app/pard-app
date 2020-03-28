@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default: "pard-dev",
+    "default": "pard-app",
     "dev": "pard-dev",
     "prod": "pard-app"
   }
