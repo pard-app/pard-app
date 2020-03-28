@@ -193,3 +193,48 @@ async function deleteListingFromAlgolia(snapshot: any) {
     await collectionIndex.deleteObject(objectID);
   }
 }
+
+/*
+ * The clearData function removes personal data from the RealTime Database,
+ * Storage, and Firestore. It waits for all deletions to complete, and then
+ * returns a success message.
+ */
+export const clearData = functions
+  .region("europe-west1")
+  .auth.user()
+  .onDelete(async user => {
+    const { uid } = user;
+    await deleteFirebaseData(uid);
+  });
+
+const deleteFirebaseData = async (uid: string) => {
+  if (uid) {
+    console.log("Deleting data for user: " + uid);
+
+    await db
+      .collection("vendors")
+      .doc(uid)
+      .delete();
+
+    const listings = await db
+      .collection("listings")
+      .where("vendor", "==", uid)
+      .get();
+    const batch = db.batch();
+
+    listings.forEach(doc => {
+      console.log("Deleting " + doc.ref.id);
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+
+    console.log("Deleted all listings for user: " + uid);
+
+    const bucket = admin.storage().bucket();
+
+    return bucket.deleteFiles({
+      prefix: `listings/${uid}`
+    });
+  }
+};
