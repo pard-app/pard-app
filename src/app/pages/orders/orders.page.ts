@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { DataService } from "src/app/features/services/data.service";
-import { OrderModel } from "src/app/features/models/order.model";
+import { DataService } from "../../@features/services/data.service";
+import { OrderModel } from "../../@features/models/order.model";
 import { Observable } from "rxjs";
 import { TranslateService } from "@ngx-translate/core";
 import { ModalController } from "@ionic/angular";

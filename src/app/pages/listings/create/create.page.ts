@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { PhotoService } from "src/app/features/services/photo.service";
-import { DataService } from "src/app/features/services/data.service";
+import { PhotoService } from "../../../@features/services/photo.service";
+import { DataService } from "../../../@features/services/data.service";
 import { Router } from "@angular/router";
 import { LoadingController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";

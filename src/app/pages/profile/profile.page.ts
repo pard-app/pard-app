@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { DataService } from "src/app/features/services/data.service";
-import { VendorModel } from "src/app/features/models/vendor.model";
+import { DataService } from "../../@features/services/data.service";
+import { VendorModel } from "../../@features/models/vendor.model";
 import { Observable } from "rxjs";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { Router } from "@angular/router";

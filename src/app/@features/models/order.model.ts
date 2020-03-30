@@ -12,4 +12,5 @@ export class OrderModel {
   status: string;
   vendor: string;
   sum: number;
+  name: string;
 }

@@ -20,7 +20,7 @@ import { AngularFireAuthModule } from "@angular/fire/auth";
 import { AngularFireStorageModule, StorageBucket } from "@angular/fire/storage";
 import { AngularFireAnalyticsModule } from "@angular/fire/analytics";
 import { AngularFireAuthGuardModule } from "@angular/fire/auth-guard";
-import { ComponentsModule } from "./features/components/components.module";
+import { ComponentsModule } from "./@features/components/components.module";
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, "./assets/i18n/", ".json");

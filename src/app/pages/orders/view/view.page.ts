@@ -1,9 +1,8 @@
 import { Component, OnInit, Input, OnDestroy } from "@angular/core";
-import { OrderModel } from "src/app/features/models/order.model";
+import { OrderModel } from "../../../@features/models/order.model";
 import { ModalController } from "@ionic/angular";
 import { Subscription } from "rxjs";
-import { DataService } from "src/app/features/services/data.service";
-import { ListingModel } from "src/app/features/models/listing.model";
+import { DataService } from "../../../@features/services/data.service";
 
 @Component({
   selector: "app-view",

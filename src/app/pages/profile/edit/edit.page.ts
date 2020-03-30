@@ -6,7 +6,7 @@ import { AngularFireAuth } from "@angular/fire/auth";
 import { AngularFirestore } from "@angular/fire/firestore";
 import { AngularFireStorage } from "@angular/fire/storage";
 import { LoadingController } from "@ionic/angular";
-import { DataService } from "src/app/features/services/data.service";
+import { DataService } from "../../../@features/services/data.service";
 import { take } from "rxjs/operators";
 
 @Component({

@@ -257,11 +257,11 @@ export const newOrderEmail = functions
           .then(vendorDoc => {
             const vendor = vendorDoc.data();
             if (vendor && vendor.email) {
-              const msg = {
+              const vendorMsg = {
                 to: vendor.email,
                 from: "noreply@pard.app",
-                subject: "New order in pard.app!",
-                templateId: "d-148343972117401ba415ad9eab113368",
+                subject: "New order " + order.OrderNumber + " from pard.app",
+                templateId: "d-763ed1bdb26a48beb682e2604e8fdebf",
                 substitutionWrappers: ["{{", "}}"],
                 substitutions: {
                   name: order.name,
@@ -273,16 +273,52 @@ export const newOrderEmail = functions
                   orderNumber: order.orderNumber
                 }
               };
-              return sendgridemail
-                .send(msg)
+
+              const buyerMsg = {
+                to: order.email,
+                from: "noreply@pard.app",
+                subject: "Order " + order.OrderNumber + " received in pard.app",
+                templateId: "d-148343972117401ba415ad9eab113368",
+                substitutionWrappers: ["{{", "}}"],
+                substitutions: {
+                  name: order.name,
+                  vendoraddress: order.address,
+                  comments: order.comments,
+                  email: order.email,
+                  phone: order.phone,
+                  sum: order.sum,
+                  orderNumber: order.orderNumber,
+                  vendorAddress: vendor.address,
+                  vendorBank: vendor.bank,
+                  vendorCity: vendor.city,
+                  vendorCountry: vendor.country,
+                  vendorPhone: vendor.phone,
+                  vendorReg: vendor.regno,
+                  vendorTitle: vendor.title,
+                  vendorCompany: vendor.company,
+                  vendorEmail: vendor.email
+                }
+              };
+
+              sendgridemail
+                .send(vendorMsg)
                 .then(() => {
-                  console.log("New order e-mail sent to: " + vendor.email);
+                  console.log(
+                    "New order e-mail sent to vendor: " + vendor.email
+                  );
+                })
+                .catch((err: any) => console.log(err));
+
+              sendgridemail
+                .send(buyerMsg)
+                .then(() => {
+                  console.log("New order e-mail sent to buyer: " + order.email);
                 })
                 .catch((err: any) => console.log(err));
             }
           });
       } else {
-        console.log("Failed to send new order e-mail.");
+        console.log("Failed to send new order e-mails.");
         return;
       }
     });

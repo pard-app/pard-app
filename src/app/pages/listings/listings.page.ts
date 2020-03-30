@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { PhotoService } from "../../features/services/photo.service";
-import { DataService } from "../../features/services/data.service";
-import { ListingModel } from "src/app/features/models/listing.model";
+import { PhotoService } from "../../@features/services/photo.service";
+import { DataService } from "../../@features/services/data.service";
+import { ListingModel } from "src/app/@features/models/listing.model";
 import { Observable } from "rxjs";
 import { AlertController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
