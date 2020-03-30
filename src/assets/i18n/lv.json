@@ -112,5 +112,8 @@
   "SLIDE_6_TEXT": "Ja jums ir kādi jautājumi vai atsauksmes, sazinieties ar mums, rakstot uz pard@pard.app",
   "NEXT": "Tālāk",
   "DEVELOPMENT_NOTICE": "Piezīme: aplikācija tiek aktīvi izstrādāta un var darboties ar kļūdām.",
-  "START": "Sākt"
+  "START": "Sākt",
+
+  "FIND_MY_SHOP": "Atrast veikalu",
+  "GEOLOCATE": "Lokācija"
 }

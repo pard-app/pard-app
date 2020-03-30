@@ -4,6 +4,7 @@ import { FormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 
 import { TogglePasswordComponent } from "./toggle-password/toggle-password.component";
+//import { GoogleMapComponent } from "./google-map/google-map.component";
 
 @NgModule({
   imports: [CommonModule, FormsModule, IonicModule],

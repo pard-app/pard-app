@@ -112,5 +112,8 @@
   "SLIDE_6_TEXT": "If you have any questions or feedback, feel free to contact us any time at pard@pard.app",
   "NEXT": "Next",
   "DEVELOPMENT_NOTICE": "Note: the app is currently in active development and may behave unexpectedly.",
-  "START": "Start"
+  "START": "Start",
+
+  "FIND_MY_SHOP": "Find by address",
+  "GEOLOCATE": "Locate"
 }

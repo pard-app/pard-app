@@ -8,6 +8,8 @@ import { EditPageRoutingModule } from "./edit-routing.module";
 
 import { EditPage } from "./edit.page";
 import { TranslateModule } from "@ngx-translate/core";
+import { ComponentsModule } from "../../../@features/components/components.module";
+import { GoogleMapsModule } from "@angular/google-maps";
 
 @NgModule({
   imports: [
@@ -16,7 +18,9 @@ import { TranslateModule } from "@ngx-translate/core";
     IonicModule,
     TranslateModule,
     ReactiveFormsModule,
-    EditPageRoutingModule
+    ComponentsModule,
+    EditPageRoutingModule,
+    GoogleMapsModule
   ],
   declarations: [EditPage]
 })

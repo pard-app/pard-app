@@ -82,7 +82,8 @@ export const sendVendorsToAlgolia = functions
         phone: document.phone,
         registered: document.registered,
         regno: document.regno,
-        title: document.title
+        title: document.title,
+        _geoloc: document._geoloc
       };
 
       algoliaRecords.push(record);
@@ -193,7 +194,6 @@ async function deleteListingFromAlgolia(snapshot: any) {
     await collectionIndex.deleteObject(objectID);
   }
 }
-
 /*
  * The clearData function removes personal data from the RealTime Database,
  * Storage, and Firestore. It waits for all deletions to complete, and then
@@ -240,86 +240,86 @@ const deleteFirebaseData = async (uid: string) => {
 };
 
 // New order e-mails
-const sendgridemail = require("@sendgrid/mail");
-sendgridemail.setApiKey(functions.config().sendgrid.apikey);
+// const sendgridemail = require("@sendgrid/mail");
+// sendgridemail.setApiKey(functions.config().sendgrid.apikey);
 
-export const newOrderEmail = functions
-  .region("europe-west1")
-  .firestore.document("orders/{orderID}") // any write to this node will trigger email
-  .onCreate(async (event, context) => {
-    await event.ref.get().then(orderDoc => {
-      const order = orderDoc.data();
-      if (order && order.vendor) {
-        return db
-          .collection("vendors")
-          .doc(order.vendor)
-          .get()
-          .then(vendorDoc => {
-            const vendor = vendorDoc.data();
-            if (vendor && vendor.email) {
-              const vendorMsg = {
-                to: vendor.email,
-                from: "noreply@pard.app",
-                subject: "New order " + order.OrderNumber + " from pard.app",
-                templateId: "d-763ed1bdb26a48beb682e2604e8fdebf",
-                substitutionWrappers: ["{{", "}}"],
-                substitutions: {
-                  name: order.name,
-                  address: order.address,
-                  comments: order.comments,
-                  email: order.email,
-                  phone: order.phone,
-                  sum: order.sum,
-                  orderNumber: order.orderNumber
-                }
-              };
+// export const newOrderEmail = functions
+//   .region("europe-west1")
+//   .firestore.document("orders/{orderID}") // any write to this node will trigger email
+//   .onCreate(async (event, context) => {
+//     await event.ref.get().then(orderDoc => {
+//       const order = orderDoc.data();
+//       if (order && order.vendor) {
+//         return db
+//           .collection("vendors")
+//           .doc(order.vendor)
+//           .get()
+//           .then(vendorDoc => {
+//             const vendor = vendorDoc.data();
+//             if (vendor && vendor.email) {
+//               const vendorMsg = {
+//                 to: vendor.email,
+//                 from: "noreply@pard.app",
+//                 subject: "New order " + order.OrderNumber + " from pard.app",
+//                 templateId: "d-763ed1bdb26a48beb682e2604e8fdebf",
+//                 substitutionWrappers: ["{{", "}}"],
+//                 substitutions: {
+//                   name: order.name,
+//                   address: order.address,
+//                   comments: order.comments,
+//                   email: order.email,
+//                   phone: order.phone,
+//                   sum: order.sum,
+//                   orderNumber: order.orderNumber
+//                 }
+//               };
 
-              const buyerMsg = {
-                to: order.email,
-                from: "noreply@pard.app",
-                subject: "Order " + order.OrderNumber + " received in pard.app",
-                templateId: "d-148343972117401ba415ad9eab113368",
-                substitutionWrappers: ["{{", "}}"],
-                substitutions: {
-                  name: order.name,
-                  vendoraddress: order.address,
-                  comments: order.comments,
-                  email: order.email,
-                  phone: order.phone,
-                  sum: order.sum,
-                  orderNumber: order.orderNumber,
-                  vendorAddress: vendor.address,
-                  vendorBank: vendor.bank,
-                  vendorCity: vendor.city,
-                  vendorCountry: vendor.country,
-                  vendorPhone: vendor.phone,
-                  vendorReg: vendor.regno,
-                  vendorTitle: vendor.title,
-                  vendorCompany: vendor.company,
-                  vendorEmail: vendor.email
-                }
-              };
+//               const buyerMsg = {
+//                 to: order.email,
+//                 from: "noreply@pard.app",
+//                 subject: "Order " + order.OrderNumber + " received in pard.app",
+//                 templateId: "d-148343972117401ba415ad9eab113368",
+//                 substitutionWrappers: ["{{", "}}"],
+//                 substitutions: {
+//                   name: order.name,
+//                   vendoraddress: order.address,
+//                   comments: order.comments,
+//                   email: order.email,
+//                   phone: order.phone,
+//                   sum: order.sum,
+//                   orderNumber: order.orderNumber,
+//                   vendorAddress: vendor.address,
+//                   vendorBank: vendor.bank,
+//                   vendorCity: vendor.city,
+//                   vendorCountry: vendor.country,
+//                   vendorPhone: vendor.phone,
+//                   vendorReg: vendor.regno,
+//                   vendorTitle: vendor.title,
+//                   vendorCompany: vendor.company,
+//                   vendorEmail: vendor.email
+//                 }
+//               };
 
-              sendgridemail
-                .send(vendorMsg)
-                .then(() => {
-                  console.log(
-                    "New order e-mail sent to vendor: " + vendor.email
-                  );
-                })
-                .catch((err: any) => console.log(err));
+//               sendgridemail
+//                 .send(vendorMsg)
+//                 .then(() => {
+//                   console.log(
+//                     "New order e-mail sent to vendor: " + vendor.email
+//                   );
+//                 })
+//                 .catch((err: any) => console.log(err));
 
-              sendgridemail
-                .send(buyerMsg)
-                .then(() => {
-                  console.log("New order e-mail sent to buyer: " + order.email);
-                })
-                .catch((err: any) => console.log(err));
-            }
-          });
-      } else {
-        console.log("Failed to send new order e-mails.");
-        return;
-      }
-    });
-  });
+//               sendgridemail
+//                 .send(buyerMsg)
+//                 .then(() => {
+//                   console.log("New order e-mail sent to buyer: " + order.email);
+//                 })
+//                 .catch((err: any) => console.log(err));
+//             }
+//           });
+//       } else {
+//         console.log("Failed to send new order e-mails.");
+//         return;
+//       }
+//     });
+//   });

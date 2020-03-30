@@ -16,7 +16,7 @@
 @import "~@ionic/angular/css/normalize.css";
 @import "~@ionic/angular/css/structure.css";
 @import "~@ionic/angular/css/typography.css";
-@import '~@ionic/angular/css/display.css';
+@import "~@ionic/angular/css/display.css";
 
 /* Optional CSS utils that can be commented out */
 @import "~@ionic/angular/css/padding.css";
@@ -25,16 +25,16 @@
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
 
-img {
-    width: auto;
-}
+// img {
+//   width: auto;
+// }
 
 ion-img {
-    max-width: 500px;
-    max-height: 500px;
-    display: block;
-    margin: 0 auto;
-    overflow: hidden;
+  max-width: 500px;
+  max-height: 500px;
+  display: block;
+  margin: 0 auto;
+  overflow: hidden;
 }
 
 h1,
@@ -45,67 +45,65 @@ h5,
 h6,
 ion-title,
 ion-card-title {
-    font-family: var(--ion-font-family-headings);
-    font-weight: 900;
+  font-family: var(--ion-font-family-headings);
+  font-weight: 900;
 }
 
 .logo {
-    width: 150px;
-    display: inline-block;
+  width: 150px;
+  display: inline-block;
 }
 
 .title {
-    text-align: center;
+  text-align: center;
 }
 
 .description {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
-
 .file-input {
-    opacity: 0;
-    position: absolute;
-    width: 100%;
-    height: 100%;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
 }
 
 .required::after {
-    content: " *";
+  content: " *";
 }
 
 ion-item-options {
-    border: none;
+  border: none;
 }
 
 ion-item-option {
-    background: transparent;
+  background: transparent;
 }
 
 .alert-button {
-    &.danger {
-        color: var(--ion-color-danger);
-    }
+  &.danger {
+    color: var(--ion-color-danger);
+  }
 
-    &.secondary {
-        color: var(--ion-color-secondary);
-    }
+  &.secondary {
+    color: var(--ion-color-secondary);
+  }
 
-    &.success {
-        color: var(--ion-color-success);
-    }
+  &.success {
+    color: var(--ion-color-success);
+  }
 }
 
 .languages {
+  img {
+    width: 30px;
+    margin: 6px;
 
-    img {
-        width: 30px;
-        margin: 6px;
-
-        &:last-child {
-            margin-right: 0;
-        }
+    &:last-child {
+      margin-right: 0;
     }
+  }
 }
 
 /* Change Autocomplete styles in Chrome*/
@@ -118,5 +116,9 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-    background-color: transparent !important;
+  background-color: transparent !important;
+}
+
+google-map * {
+  visibility: visible !important;
 }

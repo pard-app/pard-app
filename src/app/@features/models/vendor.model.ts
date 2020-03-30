@@ -14,4 +14,8 @@ export class VendorModel {
   delivery_costs: number;
   delivery_note: string;
   title: string;
+  _geoloc: {
+    lat: number;
+    lng: number;
+  };
 }
