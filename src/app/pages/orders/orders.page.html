@@ -7,7 +7,7 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <ion-list lines="full">
+  <ion-list lines="none">
     <ion-list-header *ngIf="!viewingAll">
       <ion-label>{{ "ACTIVE_ORDERS" | translate }}</ion-label>
       <ion-button (click)="viewingAll = !viewingAll"
@@ -27,12 +27,24 @@
         <ion-item class="order" (click)="viewOrder(order)">
           <div>
             <small>{{order.date | date }} </small>
-            <h1>{{order.orderNumber}}</h1>
+            <h1>{{order.orderId}}</h1>
             <ion-chip color="primary" slot="start">
               <ion-label>{{ order.sum | currency }}</ion-label>
             </ion-chip>
+
+            <ion-badge *ngIf="order.delivery" color="secondary"
+              >{{ "DELIVERY" | translate }}
+            </ion-badge>
+            <p>
+              {{order.buyer.firstName + " " + order.buyer.lastName}} <br />
+              <a [href]="'mailto:' + order.buyer.email"
+                >{{order.buyer.email}}</a
+              >
+              <br />
+              <a [href]="'tel:' + order.buyer.phone">{{order.buyer.phone}}</a>
+            </p>
           </div>
-          <ion-badge slot="end" [class]="'status-' + order.status"
+          <ion-badge slot="end" [class]="'status status-' + order.status"
             >{{ order.status | translate }}</ion-badge
           >
         </ion-item>

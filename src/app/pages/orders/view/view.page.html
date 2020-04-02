@@ -14,7 +14,7 @@
   <main class="order ion-padding">
     <section class="details">
       <small>{{order.date | date }}</small>
-      <h1>{{order.orderNumber}}</h1>
+      <h1>{{order.orderId}}</h1>
 
       <ion-chip color="primary">
         <ion-label>{{ order.sum | currency}}</ion-label>
@@ -23,13 +23,20 @@
     <section class="buyer ion-margin-vertical">
       <h5>{{ "BUYER" | translate }}</h5>
       <p>
-        <strong><a [href]="'mailto:' + order.email">{{order.email}}</a></strong>
+        <strong>{{order.buyer.firstName + " " + order.buyer.lastName}}</strong>
         <br />
-        <a [href]="'tel:' + order.phone">{{order.phone }}</a> <br />
-        {{ order.address }} <br />
+        <a [href]="'mailto:' + order.buyer.email">{{order.buyer.email}}</a>
+        <br />
+        <a [href]="'tel:' + order.buyer.phone">{{order.buyer.phone }}</a> <br />
         {{ "DELIVERY" | translate }}: {{ order.delivery ? ("YES" | translate) :
-        ("NO" | translate)}} <br />
-        <em>{{ order.comments }}</em>
+        ("NO" | translate)}}
+      </p>
+      <p *ngIf="order.delivery">
+        {{order.buyer.address}}, {{order.buyer.county ? (order.buyer.county + ',
+        ' ) : ''}}{{order.buyer.city}}, {{order.buyer.country}},
+        {{order.buyer.postCode}}
+        <br />
+        <em>{{ order.buyer.comments }}</em>
       </p>
     </section>
 
@@ -37,47 +44,53 @@
       <h5>{{ "ITEMS" | translate }}</h5>
       <ion-list lines="none">
         <ion-item
-          *ngFor="let listing of listings"
+          *ngFor="let listing of order.listings"
           class="ion-no-margin ion-no-padding"
         >
           <ion-avatar slot="start">
             <ion-img [src]="listing.image"></ion-img>
           </ion-avatar>
           <ion-label>{{listing.title}}</ion-label>
-          <ion-badge color="primary" slot="end">{{listing.quantity}}</ion-badge>
+          <ion-chip color="primary" outline="true">
+            <ion-label>{{listing.price | currency}}</ion-label>
+          </ion-chip>
+          <ion-badge color="primary" slot="end"
+            >×{{listing.quantity}}</ion-badge
+          >
         </ion-item>
       </ion-list>
     </section>
-
-    <section class="actions">
-      <ion-button
-        expand="block"
-        color="success"
-        shape="round"
-        (click)="completeOrder(order.id)"
-        *ngIf="order.status == 'Confirmed'"
-      >
-        {{ "COMPLETE" | translate }}
-      </ion-button>
-
-      <div *ngIf="order.status == 'New'">
-        <ion-button
-          expand="block"
-          color="primary"
-          shape="round"
-          (click)="updateOrder(order.id, 'Confirmed')"
-        >
-          {{ "CONFIRM" | translate }}
-        </ion-button>
-        <ion-button
-          expand="block"
-          color="danger"
-          shape="round"
-          (click)="updateOrder(order.id, 'Rejected')"
-        >
-          {{ "REJECT" | translate }}
-        </ion-button>
-      </div>
-    </section>
   </main>
 </ion-content>
+<ion-footer>
+  <section class="actions">
+    <ion-button
+      expand="block"
+      color="success"
+      shape="round"
+      (click)="completeOrder(order.id)"
+      *ngIf="order.status == 'Confirmed'"
+    >
+      {{ "COMPLETE" | translate }}
+    </ion-button>
+
+    <div *ngIf="order.status == 'New'">
+      <ion-button
+        expand="block"
+        color="danger"
+        shape="round"
+        (click)="updateOrder(order.id, 'Rejected')"
+      >
+        {{ "REJECT" | translate }}
+      </ion-button>
+      <ion-button
+        expand="block"
+        color="primary"
+        shape="round"
+        (click)="updateOrder(order.id, 'Confirmed')"
+      >
+        {{ "CONFIRM" | translate }}
+      </ion-button>
+    </div>
+  </section>
+</ion-footer>

@@ -323,3 +323,219 @@ const deleteFirebaseData = async (uid: string) => {
 //       }
 //     });
 //   });
+
+/* Placing orders */
+export const placeOrder = functions
+  .region("europe-west1")
+  .https.onCall(async (data, context) => {
+    const orders = data.orders;
+    const delivery = data.delivery;
+    const buyer = data.buyer;
+    const promises: any[] = [];
+
+    orders.forEach((order: any) => {
+      const vendorDoc = db
+        .collection("vendors")
+        .doc(order.vendor)
+        .get();
+
+      promises.push(vendorDoc);
+
+      order.listings.forEach((listing: any) => {
+        const listingDoc = db
+          .collection("listings")
+          .doc(listing.id)
+          .get();
+        promises.push(listingDoc);
+      });
+    });
+
+    let finalOrder: any;
+
+    await Promise.all(promises).then((snapshots: any) => {
+      const processedOrder = orders.map((order: any) => {
+        const vendor = snapshots.find(
+          (document: any) => document.id === order.vendor
+        );
+        const vendorData = vendor.data();
+        const seller = {
+          address: vendorData.address,
+          city: vendorData.city,
+          company: vendorData.company,
+          country: vendorData.country,
+          bank: vendorData.bank,
+          delivery: vendorData.delivery,
+          delivery_costs: vendorData.delivery_costs,
+          delivery_note: vendorData.delivery_note,
+          email: vendorData.email,
+          image: vendorData.image,
+          phone: vendorData.phone,
+          regno: vendorData.regno,
+          title: vendorData.title
+        };
+
+        let deliveryCosts: number = 0;
+        if (vendorData.delivery && vendorData.delivery_costs) {
+          deliveryCosts = vendorData.delivery_costs;
+        }
+
+        const processedListings = order.listings.map((listing: any) => {
+          const item = snapshots.find(
+            (document: any) => document.id === listing.id
+          );
+          const itemData = item.data();
+          const itemCost = itemData.price * listing.quantity;
+
+          return {
+            id: listing.id,
+            quantity: listing.quantity,
+            sum: itemCost,
+            title: itemData.title,
+            image: itemData.image,
+            price: itemData.price,
+            description: itemData.description
+          };
+        });
+
+        // @TODO - check how to correctly add numbers with decimals
+        const listingsCost = processedListings.reduce(
+          (i: number, j: any) => i + j.sum,
+          0
+        );
+
+        const sum = delivery ? listingsCost + deliveryCosts : listingsCost;
+
+        const orderId = generateUniqueOrderId(vendorData, buyer);
+
+        return {
+          vendor: order.vendor,
+          listings: processedListings,
+          sum: sum,
+          buyer: buyer,
+          seller: seller,
+          delivery: delivery,
+          orderId: orderId
+        };
+      });
+
+      finalOrder = processedOrder;
+      return true;
+    });
+
+    const batch = db.batch();
+
+    finalOrder.forEach((processedOrder: any) => {
+      const newOrder = db.collection("orders").doc();
+      batch.set(newOrder, {
+        status: "New",
+        date: Date.now(),
+        completed: false,
+        ...processedOrder
+      });
+    });
+
+    await batch.commit();
+
+    return finalOrder;
+  });
+
+const generateUniqueOrderId = (vendor: any, buyer: any): string =>
+  `${vendor.title
+    .slice(0, 4)
+    .trim()
+    .toUpperCase()}-${buyer.firstName
+    .slice(0, 3)
+    .trim()
+    .toUpperCase()}-${Math.floor(Math.random() * 100000)}`;
+
+// return Promise.all(promises).then(((snapshots: any) => {
+//   return Promise.all(snapshots.map((doc:any) => {
+
+//     console.log("docid", doc.id)
+//     console.log("docdata", doc.data())
+
+//     return doc.data();
+
+//   })).then((data: any) => {
+
+//     let vendorDocDetails = {};
+//     let listingDocDetails = [];
+
+//     data.forEach((document: any) => {
+
+//       if (document.price) {
+//         listingDocDetails.push(document);
+//       }
+//       else {
+//         vendorDocDetails = document;
+//       }
+//     })
+
+//   })
+
+// })
+
+// const processedOrders = orders.map(async (order: any) => {
+//   await db
+//     .collection("vendors")
+//     .doc(order.vendor)
+//     .get()
+//     .then(doc => {
+//       const vendorData = doc.data();
+//       if (vendorData && vendorData.delivery && vendorData.delivery_costs) {
+//         return vendorData.delivery_costs;
+//       } else {
+//         return 0;
+//       }
+//     })
+//     .then(async deliveryCosts => {
+//       await order.listings
+//         .map(async (listing: any) => {
+//           await db
+//             .collection("listings")
+//             .doc(listing.id)
+//             .get()
+//             .then(doc => {
+//               const listingData = doc.data();
+//               if (listingData && listingData.price) {
+//                 return {
+//                   id: listing.id,
+//                   quantity: listing.quantity,
+//                   sum: listingData.price * listing.quantity
+//                 };
+//               } else {
+//                 return 0;
+//               }
+//             })
+//             .then(listingSum => {
+//               return {
+//                 id: listing.id,
+//                 quantity: listing.quantity,
+//                 sum: listingSum
+//               };
+//             });
+//         })
+//         .then((processedListings: any) => {
+//           const listingsCost = processedListings.reduce(
+//             (i: number, j: any) => i + j.sum,
+//             0
+//           );
+//           const totalSum = delivery
+//             ? listingsCost + deliveryCosts
+//             : listingsCost;
+
+//           return {
+//             vendor: order.vendor,
+//             sum: totalSum,
+//             listings: processedListings,
+//             delivery: delivery
+//           };
+//         });
+//     });
+// });
+
+// console.log("orders", orders);
+// //console.log("processed order", await processedOrders);
+
+// console.log(processedOrders);
+// return await processedOrders;

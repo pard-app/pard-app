@@ -1,16 +1,34 @@
 export class OrderModel {
-  address: string;
-  email: string;
-  phone: string;
-  comments: string;
+  buyer: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    email: string;
+    address?: string;
+    city?: string;
+    county?: string;
+    postCode?: string;
+    comments?: string;
+    country?: string;
+  };
   completed: boolean;
-  date: string;
-  delivery: boolean;
-  id: string;
-  orderNumber: string;
-  listings: [];
+  date: number;
+  listings: [
+    {
+      description: string;
+      id: string;
+      image: string;
+      price: number;
+      quantity: number;
+      sum: number;
+      title: string;
+    }
+  ];
+  orderId: string;
+  seller: {};
   status: string;
-  vendor: string;
   sum: number;
-  name: string;
+  vendor: string;
+  id: string;
+  delivery: boolean;
 }

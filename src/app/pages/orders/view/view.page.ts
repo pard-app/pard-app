@@ -3,6 +3,7 @@ import { OrderModel } from "../../../@features/models/order.model";
 import { ModalController } from "@ionic/angular";
 import { Subscription } from "rxjs";
 import { DataService } from "../../../@features/services/data.service";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   selector: "app-view",
@@ -11,30 +12,21 @@ import { DataService } from "../../../@features/services/data.service";
 })
 export class ViewPage implements OnInit, OnDestroy {
   @Input() order: OrderModel;
-  private subscription: Subscription = new Subscription();
-  public listings: any;
 
   constructor(
     private modalController: ModalController,
-    private data: DataService
-  ) {
-    this.listings = new Array();
-  }
+    private data: DataService,
+    private translate: TranslateService
+  ) {}
 
   ngOnInit() {
-    this.order.listings.map(({ listing, quantity }) => {
-      this.subscription.add(
-        this.data.getListingById(listing).subscribe(data => {
-          data["quantity"] = quantity;
-          this.listings.push(data);
-        })
-      );
-    });
+    if (!window.history.state.modal) {
+      const modalState = { modal: true };
+      history.pushState(modalState, null);
+    }
   }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-  }
+  ngOnDestroy(): void {}
 
   dismiss() {
     this.modalController.dismiss({
@@ -47,6 +39,13 @@ export class ViewPage implements OnInit, OnDestroy {
   }
 
   updateOrder(id: string, status: string) {
-    this.data.updateOrder(id, status).then(() => this.dismiss());
+    if (
+      status === "Rejected" &&
+      confirm(this.translate.instant("REJECT_CONFIRMATION"))
+    ) {
+      this.data.updateOrder(id, status).then(() => this.dismiss());
+    } else if (status === "Confirmed") {
+      this.data.updateOrder(id, status).then(() => this.dismiss());
+    }
   }
 }

@@ -1,31 +1,42 @@
 .order {
-    h1 {
-        font-size: 0.8rem;
-        margin: 5px 0;
-    }
+  padding: 10px 0;
+  border: 1px solid var(--ion-color-light);
+  h1 {
+    font-size: 0.9rem;
+    margin: 5px 0;
+  }
 
-    ion-chip {
-        margin: 0 0 10px 0;
-    }
+  ion-chip {
+    margin: 0 10px 10px 0;
+  }
+
+  p {
+    margin: 5px 0 10px 0;
+    font-size: 0.8rem;
+  }
 }
 
 .status {
-    &-New {
-        background: var(--ion-color-tertiary);
-        color: var(--ion-color-darkest);
-    }
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 5px 10px;
+  border-radius: 0;
 
-    &-Confirmed {
-        background: var(--ion-color-primary);
-    }
+  &-New {
+    background: var(--ion-color-tertiary);
+    color: var(--ion-color-darkest);
+  }
 
-    &-Rejected {
-        background: var(--ion-color-danger);
-    }
+  &-Confirmed {
+    background: var(--ion-color-primary);
+  }
 
-    &-Completed {
-        background: var(--ion-color-success);
-    }
+  &-Rejected {
+    background: var(--ion-color-danger);
+  }
 
-
+  &-Completed {
+    background: var(--ion-color-success);
+  }
 }
