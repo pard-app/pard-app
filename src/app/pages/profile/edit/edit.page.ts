@@ -14,7 +14,7 @@ const { Geolocation } = Plugins;
 @Component({
   selector: "app-edit",
   templateUrl: "./edit.page.html",
-  styleUrls: ["./edit.page.scss"]
+  styleUrls: ["./edit.page.scss"],
 })
 export class EditPage implements OnInit, OnDestroy {
   editForm: FormGroup;
@@ -28,7 +28,7 @@ export class EditPage implements OnInit, OnDestroy {
     scaleControl: false,
     draggable: false,
     mapTypeId: google.maps.MapTypeId.ROADMAP,
-    center: new google.maps.LatLng(56.951624, 24.113369)
+    center: new google.maps.LatLng(56.951624, 24.113369),
   };
   @ViewChild(GoogleMap, { static: false }) map: GoogleMap;
   location: { lat: number; lng: number };
@@ -57,13 +57,13 @@ export class EditPage implements OnInit, OnDestroy {
       delivery: new FormControl(),
       delivery_costs: new FormControl(),
       delivery_note: new FormControl(),
-      country: new FormControl()
+      country: new FormControl(),
     });
   }
 
   async save() {
     const loading = await this.loadingController.create({
-      message: this.translate.instant("PLEASE_WAIT")
+      message: this.translate.instant("PLEASE_WAIT"),
     });
 
     await loading.present();
@@ -71,14 +71,14 @@ export class EditPage implements OnInit, OnDestroy {
     if (this.logoChanged && this.logo) {
       this.afStorage
         .upload(`vendors/${this.afAuth.auth.currentUser.uid}`, this.logo)
-        .then(image => {
-          image.ref.getDownloadURL().then(imageUrl => {
+        .then((image) => {
+          image.ref.getDownloadURL().then((imageUrl) => {
             this.afStore
               .doc(`vendors/${this.afAuth.auth.currentUser.uid}`)
               .update({
                 ...this.editForm.value,
                 image: imageUrl,
-                _geoloc: this.location ? this.location : null
+                _geoloc: this.location ? this.location : null,
               });
             loading.dismiss();
             this.router.navigate(["app/profile"]);
@@ -87,7 +87,7 @@ export class EditPage implements OnInit, OnDestroy {
     } else {
       this.afStore.doc(`vendors/${this.afAuth.auth.currentUser.uid}`).update({
         ...this.editForm.value,
-        _geoloc: this.location ? this.location : null
+        _geoloc: this.location ? this.location : null,
       });
       loading.dismiss();
       this.router.navigate(["app/profile"]);
@@ -104,21 +104,21 @@ export class EditPage implements OnInit, OnDestroy {
       .getMyProfile()
       .pipe(take(1))
       .toPromise()
-      .then(data => {
+      .then((data) => {
         this.logo = data.image;
         this.editForm = new FormGroup({
-          title: new FormControl(data.title),
-          city: new FormControl(data.city),
-          address: new FormControl(data.address),
+          title: new FormControl(data.title, Validators.required),
+          city: new FormControl(data.city, Validators.required),
+          address: new FormControl(data.address, Validators.required),
           company: new FormControl(data.company),
           description: new FormControl(data.description),
-          phone: new FormControl(data.phone),
+          phone: new FormControl(data.phone, Validators.required),
           bank: new FormControl(data.bank),
           regno: new FormControl(data.regno),
           delivery: new FormControl(data.delivery),
           delivery_costs: new FormControl(data.delivery_costs),
           delivery_note: new FormControl(data.delivery_note),
-          country: new FormControl(data.country)
+          country: new FormControl(data.country),
         });
 
         if (data._geoloc) {
@@ -132,22 +132,22 @@ export class EditPage implements OnInit, OnDestroy {
   resizeMap() {
     if (!this.mapIdle) {
       // Fix for maps appearing to be greyed out if not loaded in viewport.
-      document.getElementById("google-map").style.height = "200px";
+      document.getElementById("google-map-edit").style.height = "200px";
     }
     this.mapIdle = true;
   }
 
   geolocate() {
     Geolocation.getCurrentPosition()
-      .then(position => {
+      .then((position) => {
         this.location = {
           lat: position.coords.latitude,
-          lng: position.coords.longitude
+          lng: position.coords.longitude,
         };
 
         this.setMarker();
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
       });
   }
@@ -157,14 +157,14 @@ export class EditPage implements OnInit, OnDestroy {
 
     const req = {
       query: `${this.editForm.value.title}, ${this.editForm.value.address}, ${this.editForm.value.city}, ${this.editForm.value.country}`,
-      fields: ["name", "geometry"]
+      fields: ["name", "geometry"],
     };
 
     this.service.findPlaceFromQuery(req, (results, status) => {
       if (status === google.maps.places.PlacesServiceStatus.OK) {
         this.location = {
           lat: results[0].geometry.location.lat(),
-          lng: results[0].geometry.location.lng()
+          lng: results[0].geometry.location.lng(),
         };
         this.setMarker();
       }
@@ -178,7 +178,7 @@ export class EditPage implements OnInit, OnDestroy {
 
     this.marker = new google.maps.Marker({
       position: this.location,
-      animation: google.maps.Animation.DROP
+      animation: google.maps.Animation.DROP,
     });
 
     this.marker.setMap(this.map.data.getMap());

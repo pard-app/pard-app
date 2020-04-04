@@ -26,7 +26,7 @@ export const sendListingsToAlgolia = functions
     // Retrieve all documents from the COLLECTION collection.
     const querySnapshot = await db.collection("listings").get();
 
-    querySnapshot.docs.forEach(doc => {
+    querySnapshot.docs.forEach((doc) => {
       const document = doc.data();
       // Essentially, you want your records to contain any information that facilitates search,
       // display, filtering, or relevance. Otherwise, you can leave it out.
@@ -38,7 +38,7 @@ export const sendListingsToAlgolia = functions
         price: document.price,
         stock: document.stock,
         title: document.title,
-        vendor: document.vendor
+        vendor: document.vendor,
       };
       if (document.published) {
         algoliaRecords.push(record);
@@ -63,7 +63,7 @@ export const sendVendorsToAlgolia = functions
     // Retrieve all documents from the COLLECTION collection.
     const querySnapshot = await db.collection("vendors").get();
 
-    querySnapshot.docs.forEach(doc => {
+    querySnapshot.docs.forEach((doc) => {
       const document = doc.data();
       // Essentially, you want your records to contain any information that facilitates search,
       // display, filtering, or relevance. Otherwise, you can leave it out.
@@ -83,7 +83,7 @@ export const sendVendorsToAlgolia = functions
         registered: document.registered,
         regno: document.regno,
         title: document.title,
-        _geoloc: document._geoloc
+        _geoloc: document._geoloc,
       };
 
       algoliaRecords.push(record);
@@ -202,7 +202,7 @@ async function deleteListingFromAlgolia(snapshot: any) {
 export const clearData = functions
   .region("europe-west1")
   .auth.user()
-  .onDelete(async user => {
+  .onDelete(async (user) => {
     const { uid } = user;
     await deleteFirebaseData(uid);
   });
@@ -211,10 +211,7 @@ const deleteFirebaseData = async (uid: string) => {
   if (uid) {
     console.log("Deleting data for user: " + uid);
 
-    await db
-      .collection("vendors")
-      .doc(uid)
-      .delete();
+    await db.collection("vendors").doc(uid).delete();
 
     const listings = await db
       .collection("listings")
@@ -222,7 +219,7 @@ const deleteFirebaseData = async (uid: string) => {
       .get();
     const batch = db.batch();
 
-    listings.forEach(doc => {
+    listings.forEach((doc) => {
       console.log("Deleting " + doc.ref.id);
       batch.delete(doc.ref);
     });
@@ -234,7 +231,7 @@ const deleteFirebaseData = async (uid: string) => {
     const bucket = admin.storage().bucket();
 
     return bucket.deleteFiles({
-      prefix: `listings/${uid}`
+      prefix: `listings/${uid}`,
     });
   }
 };
@@ -330,22 +327,17 @@ export const placeOrder = functions
   .https.onCall(async (data, context) => {
     const orders = data.orders;
     const delivery = data.delivery;
+    const invoice = data.invoice;
     const buyer = data.buyer;
     const promises: any[] = [];
 
     orders.forEach((order: any) => {
-      const vendorDoc = db
-        .collection("vendors")
-        .doc(order.vendor)
-        .get();
+      const vendorDoc = db.collection("vendors").doc(order.vendor).get();
 
       promises.push(vendorDoc);
 
       order.listings.forEach((listing: any) => {
-        const listingDoc = db
-          .collection("listings")
-          .doc(listing.id)
-          .get();
+        const listingDoc = db.collection("listings").doc(listing.id).get();
         promises.push(listingDoc);
       });
     });
@@ -371,7 +363,7 @@ export const placeOrder = functions
           image: vendorData.image,
           phone: vendorData.phone,
           regno: vendorData.regno,
-          title: vendorData.title
+          title: vendorData.title,
         };
 
         let deliveryCosts: number = 0;
@@ -393,7 +385,7 @@ export const placeOrder = functions
             title: itemData.title,
             image: itemData.image,
             price: itemData.price,
-            description: itemData.description
+            description: itemData.description,
           };
         });
 
@@ -414,12 +406,12 @@ export const placeOrder = functions
           buyer: buyer,
           seller: seller,
           delivery: delivery,
-          orderId: orderId
+          orderId: orderId,
+          invoice: invoice,
         };
       });
 
       finalOrder = processedOrder;
-      return true;
     });
 
     const batch = db.batch();
@@ -430,7 +422,7 @@ export const placeOrder = functions
         status: "New",
         date: Date.now(),
         completed: false,
-        ...processedOrder
+        ...processedOrder,
       });
     });
 
@@ -440,102 +432,10 @@ export const placeOrder = functions
   });
 
 const generateUniqueOrderId = (vendor: any, buyer: any): string =>
-  `${vendor.title
+  `PARD-${vendor.title
     .slice(0, 4)
     .trim()
     .toUpperCase()}-${buyer.firstName
     .slice(0, 3)
     .trim()
     .toUpperCase()}-${Math.floor(Math.random() * 100000)}`;
-
-// return Promise.all(promises).then(((snapshots: any) => {
-//   return Promise.all(snapshots.map((doc:any) => {
-
-//     console.log("docid", doc.id)
-//     console.log("docdata", doc.data())
-
-//     return doc.data();
-
-//   })).then((data: any) => {
-
-//     let vendorDocDetails = {};
-//     let listingDocDetails = [];
-
-//     data.forEach((document: any) => {
-
-//       if (document.price) {
-//         listingDocDetails.push(document);
-//       }
-//       else {
-//         vendorDocDetails = document;
-//       }
-//     })
-
-//   })
-
-// })
-
-// const processedOrders = orders.map(async (order: any) => {
-//   await db
-//     .collection("vendors")
-//     .doc(order.vendor)
-//     .get()
-//     .then(doc => {
-//       const vendorData = doc.data();
-//       if (vendorData && vendorData.delivery && vendorData.delivery_costs) {
-//         return vendorData.delivery_costs;
-//       } else {
-//         return 0;
-//       }
-//     })
-//     .then(async deliveryCosts => {
-//       await order.listings
-//         .map(async (listing: any) => {
-//           await db
-//             .collection("listings")
-//             .doc(listing.id)
-//             .get()
-//             .then(doc => {
-//               const listingData = doc.data();
-//               if (listingData && listingData.price) {
-//                 return {
-//                   id: listing.id,
-//                   quantity: listing.quantity,
-//                   sum: listingData.price * listing.quantity
-//                 };
-//               } else {
-//                 return 0;
-//               }
-//             })
-//             .then(listingSum => {
-//               return {
-//                 id: listing.id,
-//                 quantity: listing.quantity,
-//                 sum: listingSum
-//               };
-//             });
-//         })
-//         .then((processedListings: any) => {
-//           const listingsCost = processedListings.reduce(
-//             (i: number, j: any) => i + j.sum,
-//             0
-//           );
-//           const totalSum = delivery
-//             ? listingsCost + deliveryCosts
-//             : listingsCost;
-
-//           return {
-//             vendor: order.vendor,
-//             sum: totalSum,
-//             listings: processedListings,
-//             delivery: delivery
-//           };
-//         });
-//     });
-// });
-
-// console.log("orders", orders);
-// //console.log("processed order", await processedOrders);
-
-// console.log(processedOrders);
-// return await processedOrders;

@@ -9,6 +9,7 @@ import { RegisterPageRoutingModule } from "./register-routing.module";
 import { RegisterPage } from "./register.page";
 import { TranslateModule } from "@ngx-translate/core";
 import { ComponentsModule } from "../../../@features/components/components.module";
+import { GoogleMapsModule } from "@angular/google-maps";
 
 @NgModule({
   imports: [
@@ -18,8 +19,9 @@ import { ComponentsModule } from "../../../@features/components/components.modul
     TranslateModule,
     ReactiveFormsModule,
     ComponentsModule,
-    RegisterPageRoutingModule
+    GoogleMapsModule,
+    RegisterPageRoutingModule,
   ],
-  declarations: [RegisterPage]
+  declarations: [RegisterPage],
 })
 export class RegisterPageModule {}

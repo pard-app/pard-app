@@ -85,7 +85,7 @@
             </ion-item>
 
             <ion-item>
-              <ion-label position="floating"
+              <ion-label position="floating" class="required"
                 >{{ "PHONE" | translate }}</ion-label
               >
               <ion-input type="text" formControlName="phone"></ion-input>
@@ -105,17 +105,38 @@
             </ion-item>
 
             <ion-item>
-              <ion-label position="floating"
+              <ion-label position="floating" class="required"
                 >{{ "CITY" | translate }}</ion-label
               >
               <ion-input type="text" formControlName="city"></ion-input>
             </ion-item>
             <ion-item>
-              <ion-label position="floating"
+              <ion-label position="floating" class="required"
                 >{{ "ADDRESS" | translate }}</ion-label
               >
               <ion-input type="text" formControlName="address"></ion-input>
             </ion-item>
+
+            <div>
+              <ion-button
+                slot="start"
+                expand="block"
+                color="secondary"
+                (click)="findPlace()"
+              >
+                <ion-icon slot="start" name="location"></ion-icon>
+                {{ "FIND_MY_SHOP" | translate }}
+              </ion-button>
+
+              <google-map
+                [options]="mapOptions"
+                width="100%"
+                height="100%"
+                id="google-map"
+                (idle)="resizeMap()"
+              ></google-map>
+            </div>
+
             <ion-item>
               <ion-label position="floating"
                 >{{ "COMPANY" | translate }}</ion-label

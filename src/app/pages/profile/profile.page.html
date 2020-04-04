@@ -44,6 +44,7 @@
           <br />{{item.city ? item.city + "," : ""}} {{item.country |
           translate}}
           <br />
+          <a [href]="'mailto:' + item.email">{{item.email}}</a> <br />
           <a [href]="'tel:' + item.phone">{{item.phone}}</a>
         </p>
       </ion-col>
