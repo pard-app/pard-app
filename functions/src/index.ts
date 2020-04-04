@@ -360,7 +360,7 @@ export const placeOrder = functions
           delivery_costs: vendorData.delivery_costs,
           delivery_note: vendorData.delivery_note,
           email: vendorData.email,
-          image: vendorData.image,
+          image: vendorData.image ? vendorData.image : "",
           phone: vendorData.phone,
           regno: vendorData.regno,
           title: vendorData.title,
