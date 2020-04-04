@@ -108,7 +108,7 @@ export class RegisterPage implements OnInit {
                 this.afStore.doc(`vendors/${data.user.uid}`).set({
                   ...formData,
                   image: imageUrl,
-                  _geoloc: this.location,
+                  _geoloc: this.location ? this.location : null,
                 });
                 loading.dismiss();
                 this.router.navigate(["tutorial"]);
@@ -117,7 +117,7 @@ export class RegisterPage implements OnInit {
         } else {
           this.afStore.doc(`vendors/${data.user.uid}`).set({
             ...formData,
-            _geoloc: this.location,
+            _geoloc: this.location ? this.location : null,
           });
           loading.dismiss();
           this.router.navigate(["tutorial"]);
