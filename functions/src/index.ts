@@ -237,89 +237,102 @@ const deleteFirebaseData = async (uid: string) => {
 };
 
 // New order e-mails
-// const sendgridemail = require("@sendgrid/mail");
-// sendgridemail.setApiKey(functions.config().sendgrid.apikey);
+const sendgridemail = require("@sendgrid/mail");
+sendgridemail.setApiKey(functions.config().sendgrid.apikey);
 
-// export const newOrderEmail = functions
-//   .region("europe-west1")
-//   .firestore.document("orders/{orderID}") // any write to this node will trigger email
-//   .onCreate(async (event, context) => {
-//     await event.ref.get().then(orderDoc => {
-//       const order = orderDoc.data();
-//       if (order && order.vendor) {
-//         return db
-//           .collection("vendors")
-//           .doc(order.vendor)
-//           .get()
-//           .then(vendorDoc => {
-//             const vendor = vendorDoc.data();
-//             if (vendor && vendor.email) {
-//               const vendorMsg = {
-//                 to: vendor.email,
-//                 from: "noreply@pard.app",
-//                 subject: "New order " + order.OrderNumber + " from pard.app",
-//                 templateId: "d-763ed1bdb26a48beb682e2604e8fdebf",
-//                 substitutionWrappers: ["{{", "}}"],
-//                 substitutions: {
-//                   name: order.name,
-//                   address: order.address,
-//                   comments: order.comments,
-//                   email: order.email,
-//                   phone: order.phone,
-//                   sum: order.sum,
-//                   orderNumber: order.orderNumber
-//                 }
-//               };
+export const newOrderEmail = functions
+  .region("europe-west1")
+  .firestore.document("orders/{orderID}") // any write to this node will trigger email
+  .onCreate(async (event, context) => {
+    await event.ref.get().then((orderDoc) => {
+      const order = orderDoc.data();
+      let listings: string = "";
 
-//               const buyerMsg = {
-//                 to: order.email,
-//                 from: "noreply@pard.app",
-//                 subject: "Order " + order.OrderNumber + " received in pard.app",
-//                 templateId: "d-148343972117401ba415ad9eab113368",
-//                 substitutionWrappers: ["{{", "}}"],
-//                 substitutions: {
-//                   name: order.name,
-//                   vendoraddress: order.address,
-//                   comments: order.comments,
-//                   email: order.email,
-//                   phone: order.phone,
-//                   sum: order.sum,
-//                   orderNumber: order.orderNumber,
-//                   vendorAddress: vendor.address,
-//                   vendorBank: vendor.bank,
-//                   vendorCity: vendor.city,
-//                   vendorCountry: vendor.country,
-//                   vendorPhone: vendor.phone,
-//                   vendorReg: vendor.regno,
-//                   vendorTitle: vendor.title,
-//                   vendorCompany: vendor.company,
-//                   vendorEmail: vendor.email
-//                 }
-//               };
+      order?.listings.map((listing: any) => {
+        listings = listings.concat(
+          `
+          ${listing.title} x ${listing.quantity} = € ${listing.sum} <br>
+          `
+        );
+      });
+      const vendorMsg = {
+        to: order?.seller.email,
+        from: "noreply@pard.app",
+        subject: "New order " + order?.orderId,
+        templateId: "d-763ed1bdb26a48beb682e2604e8fdebf",
+        dynamic_template_data: {
+          name: order?.buyer.firstName + " " + order?.buyer.lastName,
+          address: `${
+            order?.buyer?.address ? order?.buyer?.address + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.county ? order?.buyer?.county + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.country ? order?.buyer?.country + ", " : ""
+          } ${order?.buyer?.postCode ? order?.buyer?.postCode : ""}`,
+          comments: order?.buyer?.comments ? order?.buyer?.comments : "",
+          email: order?.buyer?.email,
+          phone: order?.buyer?.phone ? order?.buyer?.phone : "",
+          sum: order?.sum,
+          orderNumber: order?.orderId,
+          listings: listings,
+          delivery: order?.delivery
+            ? "🚚 € " + order?.seller.delivery_costs
+            : "",
+        },
+      };
 
-//               sendgridemail
-//                 .send(vendorMsg)
-//                 .then(() => {
-//                   console.log(
-//                     "New order e-mail sent to vendor: " + vendor.email
-//                   );
-//                 })
-//                 .catch((err: any) => console.log(err));
+      const buyerMsg = {
+        to: order?.buyer.email,
+        from: "noreply@pard.app",
+        subject: "Order " + order?.orderId + " received",
+        templateId: "d-148343972117401ba415ad9eab113368",
+        dynamic_template_data: {
+          name: order?.buyer.firstName + " " + order?.buyer.lastName,
+          address: `${
+            order?.buyer?.address ? order?.buyer?.address + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.county ? order?.buyer?.county + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.country ? order?.buyer?.country + ", " : ""
+          } ${order?.buyer?.postCode ? order?.buyer?.postCode : ""}`,
+          comments: order?.buyer.comments ? order?.buyer.comments : "",
+          email: order?.buyer.email,
+          phone: order?.buyer.phone ? order?.buyer.phone : "",
+          sum: order?.sum,
+          orderNumber: order?.orderId,
+          vendorAddress: order?.seller.address ? order?.seller.address : "",
+          vendorBank: order?.seller.bank ? order?.seller.bank : "",
+          vendorCity: order?.seller.city ? order?.seller.city : "",
+          vendorCountry: order?.seller.country ? order?.seller.country : "",
+          vendorPhone: order?.seller.phone ? order?.seller.phone : "",
+          vendorReg: order?.seller.regno ? order?.seller.regno : "",
+          vendorTitle: order?.seller.title,
+          vendorCompany: order?.seller.company ? order?.seller.company : "",
+          vendorEmail: order?.seller.email,
+          listings: listings,
+          delivery: order?.delivery
+            ? "🚚 € " + order?.seller.delivery_costs
+            : "",
+        },
+      };
 
-//               sendgridemail
-//                 .send(buyerMsg)
-//                 .then(() => {
-//                   console.log("New order e-mail sent to buyer: " + order.email);
-//                 })
-//                 .catch((err: any) => console.log(err));
-//             }
-//           });
-//       } else {
-//         console.log("Failed to send new order e-mails.");
-//         return;
-//       }
-//     });
-//   });
+      sendgridemail
+        .send(vendorMsg)
+        .then(() => {
+          console.log(
+            "New order e-mail sent to vendor: " + order?.seller.email
+          );
+        })
+        .catch((err: any) => console.log(err));
+
+      sendgridemail
+        .send(buyerMsg)
+        .then(() => {
+          console.log("New order e-mail sent to buyer: " + order?.buyer.email);
+        })
+        .catch((err: any) => console.log(err));
+    });
+  });
 
 /* Placing orders */
 export const placeOrder = functions
