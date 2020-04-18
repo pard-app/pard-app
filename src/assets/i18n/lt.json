@@ -114,5 +114,6 @@
   "DEVELOPMENT_NOTICE": "Dėmesio: Aplikacija šiuo metu intensyviai tobulinama, galimi funkcijų atlikimo trikdžiai.",
   "START": "Pradėti",
   "FIND_MY_SHOP": "Rasti adresa",
-  "GEOLOCATE": "Mano lokacija"
+  "GEOLOCATE": "Mano lokacija",
+  "LOCATION_ON_MAP": "Vieta žemėlapyje"
 }

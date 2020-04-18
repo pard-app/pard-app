@@ -118,6 +118,12 @@
             </ion-item>
 
             <div>
+              <ion-item>
+                <ion-label class="required"
+                  >{{ "LOCATION_ON_MAP" | translate }}</ion-label
+                >
+              </ion-item>
+
               <ion-button
                 slot="start"
                 expand="block"
@@ -126,6 +132,15 @@
               >
                 <ion-icon slot="start" name="location"></ion-icon>
                 {{ "FIND_MY_SHOP" | translate }}
+              </ion-button>
+              <ion-button
+                slot="start"
+                expand="block"
+                color="secondary"
+                (click)="geolocate()"
+              >
+                <ion-icon slot="start" name="locate"></ion-icon>
+                {{ "GEOLOCATE" | translate }}
               </ion-button>
 
               <google-map
@@ -216,7 +231,7 @@
                 type="submit"
                 expand="block"
                 shape="round"
-                [disabled]="!registerForm.valid"
+                [disabled]="!registerForm.valid || !location"
                 >{{ "SIGN_UP" | translate }}</ion-button
               ></ion-col
             >

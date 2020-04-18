@@ -51,6 +51,56 @@ export const sendListingsToAlgolia = functions
     });
   });
 
+const runtimeOpts = {
+  timeoutSeconds: 540,
+  memory: "2GB" as "128MB" | "256MB" | "512MB" | "1GB" | "2GB",
+};
+
+export const sendListingsToAlgoliaWithLocation = functions
+  .region("europe-west1")
+  .runWith(runtimeOpts) // @ts-ignore
+  .https.onRequest(async (req: any, res: any) => {
+    // This array will contain all records to be indexed in Algolia.
+    // A record does not need to necessarily contain all properties of the Firestore document,
+    // only the relevant ones.
+    const algoliaRecords: any[] = [];
+    const collectionIndex = algoliaClient.initIndex("listings");
+    // Retrieve all documents from the COLLECTION collection.
+    const querySnapshot = await db.collection("listings").get();
+
+    querySnapshot.docs.forEach((doc) => {
+      const document = doc.data();
+      // Essentially, you want your records to contain any information that facilitates search,
+      // display, filtering, or relevance. Otherwise, you can leave it out.
+      db.collection("vendors")
+        .doc(document.vendor)
+        .get()
+        .then(async (vendorDoc) => {
+          const vendor = vendorDoc.data();
+          const record = {
+            objectID: doc.id,
+            date: document.date,
+            image: document.image,
+            description: document.description,
+            price: document.price,
+            stock: document.stock,
+            title: document.title,
+            vendor: document.vendor,
+            _geoloc: vendor?._geoloc,
+          };
+          if (document.published) {
+            algoliaRecords.push(record);
+          }
+        })
+        .catch((err) => console.log(err));
+    });
+
+    // After all records are created, we save them to
+    collectionIndex.saveObjects(algoliaRecords, (_error: any, content: any) => {
+      res.status(200).send("Listings were indexed to Algolia successfully.");
+    });
+  });
+
 export const sendVendorsToAlgolia = functions
   .region("europe-west1")
   .https.onRequest(async (req, res) => {
@@ -168,10 +218,20 @@ async function saveListingInAlgolia(snapshot: any) {
   const collectionIndex = algoliaClient.initIndex("listings");
   if (snapshot.exists) {
     const record = snapshot.data();
-    if (record && record.published) {
-      record.objectID = snapshot.id;
-      await collectionIndex.saveObject(record);
-    }
+    db.collection("vendors")
+      .doc(record.vendor)
+      .get()
+      .then(async (vendorDoc) => {
+        const vendor = vendorDoc.data();
+        if (record && record.published && vendor?._geoloc) {
+          record.objectID = snapshot.id;
+          record._geoloc = vendor?._geoloc;
+          await collectionIndex.saveObject(record);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 }
 

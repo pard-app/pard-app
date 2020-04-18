@@ -115,5 +115,6 @@
   "START": "Sākt",
 
   "FIND_MY_SHOP": "Atrast veikalu",
-  "GEOLOCATE": "Lokācija"
+  "GEOLOCATE": "Lokācija",
+  "LOCATION_ON_MAP": "Vieta uz kartes"
 }

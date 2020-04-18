@@ -78,7 +78,7 @@ export class EditPage implements OnInit, OnDestroy {
               .update({
                 ...this.editForm.value,
                 image: imageUrl,
-                _geoloc: this.location ? this.location : null,
+                //_geoloc: this.location ? this.location : null,
               });
             loading.dismiss();
             this.router.navigate(["app/profile"]);
@@ -87,7 +87,7 @@ export class EditPage implements OnInit, OnDestroy {
     } else {
       this.afStore.doc(`vendors/${this.afAuth.auth.currentUser.uid}`).update({
         ...this.editForm.value,
-        _geoloc: this.location ? this.location : null,
+        //_geoloc: this.location ? this.location : null,
       });
       loading.dismiss();
       this.router.navigate(["app/profile"]);
@@ -137,39 +137,39 @@ export class EditPage implements OnInit, OnDestroy {
     this.mapIdle = true;
   }
 
-  geolocate() {
-    Geolocation.getCurrentPosition()
-      .then((position) => {
-        this.location = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
+  // geolocate() {
+  //   Geolocation.getCurrentPosition()
+  //     .then((position) => {
+  //       this.location = {
+  //         lat: position.coords.latitude,
+  //         lng: position.coords.longitude,
+  //       };
 
-        this.setMarker();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
+  //       this.setMarker();
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
+  // }
 
-  async findPlace() {
-    this.service = new google.maps.places.PlacesService(this.map.data.getMap());
+  // async findPlace() {
+  //   this.service = new google.maps.places.PlacesService(this.map.data.getMap());
 
-    const req = {
-      query: `${this.editForm.value.title}, ${this.editForm.value.address}, ${this.editForm.value.city}, ${this.editForm.value.country}`,
-      fields: ["name", "geometry"],
-    };
+  //   const req = {
+  //     query: `${this.editForm.value.title}, ${this.editForm.value.address}, ${this.editForm.value.city}, ${this.editForm.value.country}`,
+  //     fields: ["name", "geometry"],
+  //   };
 
-    this.service.findPlaceFromQuery(req, (results, status) => {
-      if (status === google.maps.places.PlacesServiceStatus.OK) {
-        this.location = {
-          lat: results[0].geometry.location.lat(),
-          lng: results[0].geometry.location.lng(),
-        };
-        this.setMarker();
-      }
-    });
-  }
+  //   this.service.findPlaceFromQuery(req, (results, status) => {
+  //     if (status === google.maps.places.PlacesServiceStatus.OK) {
+  //       this.location = {
+  //         lat: results[0].geometry.location.lat(),
+  //         lng: results[0].geometry.location.lng(),
+  //       };
+  //       this.setMarker();
+  //     }
+  //   });
+  // }
 
   private setMarker() {
     if (this.marker) {

@@ -7,6 +7,7 @@ import { LoadingController } from "@ionic/angular";
 import { AngularFirestore } from "@angular/fire/firestore";
 import { AngularFireStorage } from "@angular/fire/storage";
 import { GoogleMap } from "@angular/google-maps";
+import { Geolocation } from "@capacitor/core";
 
 @Component({
   selector: "app-register",
@@ -69,6 +70,7 @@ export class RegisterPage implements OnInit {
     });
 
     this.countries = ["Lithuania", "Latvia"];
+    this.location = null;
   }
 
   async register() {
@@ -159,10 +161,7 @@ export class RegisterPage implements OnInit {
       fields: ["name", "geometry"],
     };
 
-    console.log(req);
-
     this.service.findPlaceFromQuery(req, (results, status) => {
-      console.log(results);
       if (status === google.maps.places.PlacesServiceStatus.OK) {
         this.location = {
           lat: results[0].geometry.location.lat(),
@@ -171,6 +170,21 @@ export class RegisterPage implements OnInit {
         this.setMarker();
       }
     });
+  }
+
+  geolocate() {
+    Geolocation.getCurrentPosition()
+      .then((position) => {
+        this.location = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        this.setMarker();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   resizeMap() {
