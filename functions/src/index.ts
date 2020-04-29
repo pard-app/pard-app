@@ -13,6 +13,8 @@ const algoliaClient = algoliasearch(
   functions.config().algolia.apikey
 );
 
+const rp = require("request-promise");
+
 // Create a HTTP request cloud function.
 export const sendListingsToAlgolia = functions
   .region("europe-west1")
@@ -100,6 +102,54 @@ export const sendListingsToAlgoliaWithLocation = functions
       res.status(200).send("Listings were indexed to Algolia successfully.");
     });
   });
+
+// export const updateListingLocation = functions
+//   .region("europe-west1")
+//   .runWith(runtimeOpts) // @ts-ignore
+//   .https.onRequest(async (req: any, res: any) => {
+//     const vendor = req.query.vendor;
+//     const lat = req.query.lat;
+//     const lng = req.query.lng;
+
+//     // This array will contain all records to be indexed in Algolia.
+//     // A record does not need to necessarily contain all properties of the Firestore document,
+//     // only the relevant ones.
+//     const algoliaRecords: any[] = [];
+//     const collectionIndex = algoliaClient.initIndex("listings");
+//     // Retrieve all documents from the COLLECTION collection.
+//     const querySnapshot = await db
+//       .collection("listings")
+//       .where("vendor", "==", vendor)
+//       .get();
+
+//     querySnapshot.docs.forEach((doc) => {
+//       const document = doc.data();
+//       // Essentially, you want your records to contain any information that facilitates search,
+//       // display, filtering, or relevance. Otherwise, you can leave it out.
+//       const record = {
+//         objectID: doc.id,
+//         date: document.date,
+//         image: document.image,
+//         description: document.description,
+//         price: document.price,
+//         stock: document.stock,
+//         title: document.title,
+//         vendor: document.vendor,
+//         _geoloc: {
+//           lat: Number(lat),
+//           lng: Number(lng),
+//         },
+//       };
+//       if (document.published) {
+//         algoliaRecords.push(record);
+//       }
+//     });
+
+//     // After all records are created, we save them to
+//     collectionIndex.saveObjects(algoliaRecords, (_error: any, content: any) => {
+//       res.status(200).send("Listings were indexed to Algolia successfully.");
+//     });
+//   });
 
 export const sendVendorsToAlgolia = functions
   .region("europe-west1")
@@ -403,105 +453,132 @@ export const placeOrder = functions
     const invoice = data.invoice;
     const buyer = data.buyer;
     const promises: any[] = [];
+    const response = data.captcha;
+    console.log("recaptcha response", response);
+    await rp({
+      uri: "https://recaptcha.google.com/recaptcha/api/siteverify",
+      method: "POST",
+      formData: {
+        secret: functions.config().recaptcha.key,
+        response: response,
+      },
+      json: true,
+    })
+      .then(async (result: any) => {
+        console.log("recaptcha result", result);
+        if (result.success) {
+          orders.forEach((order: any) => {
+            const vendorDoc = db.collection("vendors").doc(order.vendor).get();
 
-    orders.forEach((order: any) => {
-      const vendorDoc = db.collection("vendors").doc(order.vendor).get();
+            promises.push(vendorDoc);
 
-      promises.push(vendorDoc);
+            order.listings.forEach((listing: any) => {
+              const listingDoc = db
+                .collection("listings")
+                .doc(listing.id)
+                .get();
+              promises.push(listingDoc);
+            });
+          });
 
-      order.listings.forEach((listing: any) => {
-        const listingDoc = db.collection("listings").doc(listing.id).get();
-        promises.push(listingDoc);
-      });
-    });
+          let finalOrder: any;
 
-    let finalOrder: any;
+          await Promise.all(promises).then((snapshots: any) => {
+            const processedOrder = orders.map((order: any) => {
+              const vendor = snapshots.find(
+                (document: any) => document.id === order.vendor
+              );
+              const vendorData = vendor.data();
+              const seller = {
+                address: vendorData.address,
+                city: vendorData.city,
+                company: vendorData.company,
+                country: vendorData.country,
+                bank: vendorData.bank,
+                delivery: vendorData.delivery,
+                delivery_costs: vendorData.delivery_costs,
+                delivery_note: vendorData.delivery_note,
+                email: vendorData.email,
+                image: vendorData.image ? vendorData.image : "",
+                phone: vendorData.phone,
+                regno: vendorData.regno,
+                title: vendorData.title,
+              };
 
-    await Promise.all(promises).then((snapshots: any) => {
-      const processedOrder = orders.map((order: any) => {
-        const vendor = snapshots.find(
-          (document: any) => document.id === order.vendor
-        );
-        const vendorData = vendor.data();
-        const seller = {
-          address: vendorData.address,
-          city: vendorData.city,
-          company: vendorData.company,
-          country: vendorData.country,
-          bank: vendorData.bank,
-          delivery: vendorData.delivery,
-          delivery_costs: vendorData.delivery_costs,
-          delivery_note: vendorData.delivery_note,
-          email: vendorData.email,
-          image: vendorData.image ? vendorData.image : "",
-          phone: vendorData.phone,
-          regno: vendorData.regno,
-          title: vendorData.title,
-        };
+              let deliveryCosts: number = 0;
+              if (vendorData.delivery && vendorData.delivery_costs) {
+                deliveryCosts = vendorData.delivery_costs;
+              }
 
-        let deliveryCosts: number = 0;
-        if (vendorData.delivery && vendorData.delivery_costs) {
-          deliveryCosts = vendorData.delivery_costs;
+              const processedListings = order.listings.map((listing: any) => {
+                const item = snapshots.find(
+                  (document: any) => document.id === listing.id
+                );
+                const itemData = item.data();
+                const itemCost = itemData.price * listing.quantity;
+
+                return {
+                  id: listing.id,
+                  quantity: listing.quantity,
+                  sum: itemCost,
+                  title: itemData.title,
+                  image: itemData.image,
+                  price: itemData.price,
+                  description: itemData.description,
+                };
+              });
+
+              // @TODO - check how to correctly add numbers with decimals
+              const listingsCost = processedListings.reduce(
+                (i: number, j: any) => i + j.sum,
+                0
+              );
+
+              const sum = delivery
+                ? listingsCost + deliveryCosts
+                : listingsCost;
+
+              const orderId = generateUniqueOrderId(vendorData, buyer);
+
+              return {
+                vendor: order.vendor,
+                listings: processedListings,
+                sum: sum,
+                buyer: buyer,
+                seller: seller,
+                delivery: delivery,
+                orderId: orderId,
+                invoice: invoice,
+              };
+            });
+
+            finalOrder = processedOrder;
+          });
+
+          const batch = db.batch();
+
+          finalOrder.forEach((processedOrder: any) => {
+            const newOrder = db.collection("orders").doc();
+            batch.set(newOrder, {
+              status: "New",
+              date: Date.now(),
+              completed: false,
+              ...processedOrder,
+            });
+          });
+
+          await batch.commit();
+
+          return finalOrder;
+        } else {
+          console.log("Recaptcha verification failed. Are you a robot?");
+          return false;
         }
-
-        const processedListings = order.listings.map((listing: any) => {
-          const item = snapshots.find(
-            (document: any) => document.id === listing.id
-          );
-          const itemData = item.data();
-          const itemCost = itemData.price * listing.quantity;
-
-          return {
-            id: listing.id,
-            quantity: listing.quantity,
-            sum: itemCost,
-            title: itemData.title,
-            image: itemData.image,
-            price: itemData.price,
-            description: itemData.description,
-          };
-        });
-
-        // @TODO - check how to correctly add numbers with decimals
-        const listingsCost = processedListings.reduce(
-          (i: number, j: any) => i + j.sum,
-          0
-        );
-
-        const sum = delivery ? listingsCost + deliveryCosts : listingsCost;
-
-        const orderId = generateUniqueOrderId(vendorData, buyer);
-
-        return {
-          vendor: order.vendor,
-          listings: processedListings,
-          sum: sum,
-          buyer: buyer,
-          seller: seller,
-          delivery: delivery,
-          orderId: orderId,
-          invoice: invoice,
-        };
+      })
+      .catch((reason: any) => {
+        console.log("Recaptcha request failure", reason);
+        return false;
       });
-
-      finalOrder = processedOrder;
-    });
-
-    const batch = db.batch();
-
-    finalOrder.forEach((processedOrder: any) => {
-      const newOrder = db.collection("orders").doc();
-      batch.set(newOrder, {
-        status: "New",
-        date: Date.now(),
-        completed: false,
-        ...processedOrder,
-      });
-    });
-
-    await batch.commit();
-
-    return finalOrder;
   });
 
 const generateUniqueOrderId = (vendor: any, buyer: any): string =>
