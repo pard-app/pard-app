@@ -102,7 +102,7 @@
           type="submit"
           expand="block"
           shape="round"
-          [disabled]="!listingForm.valid"
+          [disabled]="!listingForm.valid || !image"
           (click)="createListing()"
           >{{ "CREATE" | translate }}</ion-button
         ></ion-col
