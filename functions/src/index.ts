@@ -455,7 +455,7 @@ export const placeOrder = functions
     const promises: any[] = [];
     const response = data.captcha;
     console.log("recaptcha response", response);
-    await rp({
+    return rp({
       uri: "https://recaptcha.google.com/recaptcha/api/siteverify",
       method: "POST",
       formData: {
