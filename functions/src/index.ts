@@ -589,3 +589,66 @@ const generateUniqueOrderId = (vendor: any, buyer: any): string =>
     .slice(0, 3)
     .trim()
     .toUpperCase()}-${Math.floor(Math.random() * 100000)}`;
+
+export const orderOnUpdate = functions
+  .region("europe-west1")
+  .firestore.document("orders/{orderId}")
+  .onUpdate(async (change, context) => {
+    const order = change.after.data();
+
+    if (order && order.status == "Confirmed") {
+      // Send e-mail
+      let listings: string = "";
+
+      order?.listings.map((listing: any) => {
+        listings = listings.concat(
+          `
+          ${listing.title} x ${listing.quantity} = € ${listing.sum} <br>
+          `
+        );
+      });
+
+      const buyerMsg = {
+        to: order?.buyer.email,
+        from: "noreply@pard.app",
+        subject: "Order " + order?.orderId + " confirmed",
+        templateId: "d-41708a0f1ed840c2b76701bdaba3bf0f",
+        dynamic_template_data: {
+          name: order?.buyer.firstName + " " + order?.buyer.lastName,
+          address: `${
+            order?.buyer?.address ? order?.buyer?.address + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.county ? order?.buyer?.county + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.country ? order?.buyer?.country + ", " : ""
+          } ${order?.buyer?.postCode ? order?.buyer?.postCode : ""}`,
+          comments: order?.buyer.comments ? order?.buyer.comments : "",
+          email: order?.buyer.email,
+          phone: order?.buyer.phone ? order?.buyer.phone : "",
+          sum: order?.sum,
+          orderNumber: order?.orderId,
+          vendorAddress: order?.seller.address ? order?.seller.address : "",
+          vendorBank: order?.seller.bank ? order?.seller.bank : "",
+          vendorCity: order?.seller.city ? order?.seller.city : "",
+          vendorCountry: order?.seller.country ? order?.seller.country : "",
+          vendorPhone: order?.seller.phone ? order?.seller.phone : "",
+          vendorReg: order?.seller.regno ? order?.seller.regno : "",
+          vendorTitle: order?.seller.title,
+          vendorCompany: order?.seller.company ? order?.seller.company : "",
+          vendorEmail: order?.seller.email,
+          listings: listings,
+          delivery: order?.delivery
+            ? "🚚 € " + order?.seller.delivery_costs
+            : "",
+        },
+      };
+
+      sendgridemail
+        .send(buyerMsg)
+        .then(() => {
+          console.log("New order e-mail sent to buyer: " + order?.buyer.email);
+        })
+        .catch((err: any) => console.log(err));
+      // Update stock
+    }
+  });
