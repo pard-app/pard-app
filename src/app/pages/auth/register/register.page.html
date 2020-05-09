@@ -219,7 +219,7 @@
 
             <ion-item>
               <ion-label class="ion-text-wrap required"
-                >{{ "FOLLOW_LEGAL_TERMS" | translate}}</ion-label
+                >{{ "ACCEPT_TERMS" | translate}}</ion-label
               >
               <ion-checkbox formControlName="terms" required></ion-checkbox>
             </ion-item>
@@ -240,6 +240,9 @@
           <ion-row>
             <ion-button fill="clear" [routerLink]="['/login']">
               {{ "ALREADY_HAVE_AN_ACCOUNT" | translate }}
+            </ion-button>
+            <ion-button fill="clear" [routerLink]="['/terms']">
+              {{ "TERMS_OF_USE" | translate }}
             </ion-button>
           </ion-row>
         </form>

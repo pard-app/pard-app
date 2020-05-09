@@ -9,13 +9,12 @@ import { TranslateService } from "@ngx-translate/core";
 @Component({
   selector: "app-create",
   templateUrl: "./create.page.html",
-  styleUrls: ["./create.page.scss"]
+  styleUrls: ["./create.page.scss"],
 })
 export class CreatePage implements OnInit {
   listingForm: FormGroup;
   image: any;
   uploadInProgress: boolean = false;
-
   constructor(
     private photoService: PhotoService,
     private data: DataService,
@@ -28,13 +27,13 @@ export class CreatePage implements OnInit {
       description: new FormControl("", Validators.required),
       price: new FormControl("", Validators.required),
       stock: new FormControl(1, [Validators.required]),
-      published: new FormControl(true)
+      published: new FormControl(true),
     });
   }
 
   async createListing() {
     const loading = await this.loadingController.create({
-      message: this.translate.instant("PLEASE_WAIT")
+      message: this.translate.instant("PLEASE_WAIT"),
     });
     await loading.present();
     this.data
@@ -45,7 +44,7 @@ export class CreatePage implements OnInit {
         this.listingForm.reset();
         loading.dismiss();
       })
-      .catch(err => {
+      .catch((err) => {
         loading.dismiss();
         alert(err.message);
       });
@@ -55,9 +54,9 @@ export class CreatePage implements OnInit {
     this.uploadInProgress = true;
 
     await this.photoService
-      .getImageUrl(event.target.files[0], 1000)
-      .then(image => {
-        this.data.uploadImage(image).then(final => {
+      .getImageUrl(event.target.files[0], 500)
+      .then((image) => {
+        this.data.uploadImage(image).then((final) => {
           this.uploadInProgress = false;
           this.image = final;
         });

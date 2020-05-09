@@ -6,13 +6,13 @@ import {
   Capacitor,
   FilesystemDirectory,
   CameraPhoto,
-  CameraSource
+  CameraSource,
 } from "@capacitor/core";
 
 const { Camera, Filesystem, Storage } = Plugins;
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class PhotoService {
   constructor() {}
@@ -26,13 +26,15 @@ export class PhotoService {
      * Optionally resize to a smaller maximum width - to improve performance for larger image thumbnails.
      */
     const readOrientation = (file: File) =>
-      new Promise<number | undefined>(resolve => {
+      new Promise<number | undefined>((resolve) => {
         const reader = new FileReader();
 
         reader.onload = () =>
           resolve(
             (() => {
-              const view = new DataView(reader.result as ArrayBuffer);
+              const view = new DataView(
+                /** @type {ArrayBuffer} */ reader.result as ArrayBuffer
+              );
 
               if (view.getUint16(0, false) != 0xffd8) {
                 return;
@@ -64,7 +66,7 @@ export class PhotoService {
 
                   offset += 2;
 
-                  for (var i = 0; i < tags; i++) {
+                  for (let i = 0; i < tags; i++) {
                     if (view.getUint16(offset + i * 12, little) == 0x0112) {
                       return view.getUint16(offset + i * 12 + 8, little);
                     }
@@ -82,7 +84,7 @@ export class PhotoService {
       });
 
     const applyRotation = (file: File, orientation: number, maxWidth: number) =>
-      new Promise<string>(resolve => {
+      new Promise<string>((resolve) => {
         const reader = new FileReader();
 
         reader.onload = () => {
@@ -103,35 +105,49 @@ export class PhotoService {
 
             const scale = outputWidth > maxWidth ? maxWidth / outputWidth : 1;
 
-            width = width * scale;
-            height = height * scale;
+            width = Math.floor(width * scale);
+            height = Math.floor(height * scale);
+
+            // to rotate rectangular image, we need enough space so square canvas is used
+            const wh = Math.max(width, height);
 
             // set proper canvas dimensions before transform & export
-            canvas.width = outputWidth * scale;
-            canvas.height = outputHeight * scale;
+            canvas.width = wh;
+            canvas.height = wh;
 
+            // for some transformations output image will be aligned to the right or bottom of square canvas
+            let rightAligned = false;
+            let bottomAligned = false;
             // transform context before drawing image
             switch (orientation) {
               case 2:
-                context.transform(-1, 0, 0, 1, width, 0);
+                context.transform(-1, 0, 0, 1, wh, 0);
+                rightAligned = true;
                 break;
               case 3:
-                context.transform(-1, 0, 0, -1, width, height);
+                context.transform(-1, 0, 0, -1, wh, wh);
+                rightAligned = true;
+                bottomAligned = true;
                 break;
               case 4:
-                context.transform(1, 0, 0, -1, 0, height);
+                context.transform(1, 0, 0, -1, 0, wh);
+                bottomAligned = true;
                 break;
               case 5:
                 context.transform(0, 1, 1, 0, 0, 0);
                 break;
               case 6:
-                context.transform(0, 1, -1, 0, height, 0);
+                context.transform(0, 1, -1, 0, wh, 0);
+                rightAligned = true;
                 break;
               case 7:
-                context.transform(0, -1, -1, 0, height, width);
+                context.transform(0, -1, -1, 0, wh, wh);
+                rightAligned = true;
+                bottomAligned = true;
                 break;
               case 8:
-                context.transform(0, -1, 1, 0, 0, width);
+                context.transform(0, -1, 1, 0, 0, wh);
+                bottomAligned = true;
                 break;
               default:
                 break;
@@ -140,8 +156,27 @@ export class PhotoService {
             // draw image
             context.drawImage(image, 0, 0, width, height);
 
+            // copy rotated image to output dimensions and export it
+            const canvas2 = document.createElement("canvas");
+            canvas2.width = Math.floor(outputWidth * scale);
+            canvas2.height = Math.floor(outputHeight * scale);
+            const ctx2 = canvas2.getContext("2d");
+            const sx = rightAligned ? canvas.width - canvas2.width : 0;
+            const sy = bottomAligned ? canvas.height - canvas2.height : 0;
+            ctx2.drawImage(
+              canvas,
+              sx,
+              sy,
+              canvas2.width,
+              canvas2.height,
+              0,
+              0,
+              canvas2.width,
+              canvas2.height
+            );
+
             // export base64
-            resolve(canvas.toDataURL("image/png"));
+            resolve(canvas2.toDataURL("image/jpeg"));
           };
 
           image.src = url;
@@ -150,8 +185,11 @@ export class PhotoService {
         reader.readAsDataURL(file);
       });
 
-    return readOrientation(file).then(orientation =>
-      applyRotation(file, orientation || 1, maxWidth || 999999)
-    );
+    //   const orientation = await readOrientation(file);
+
+    return applyRotation(file, 1, maxWidth || 999999);
+    // return readOrientation(file).then((orientation) =>
+    //   applyRotation(file, orientation || 1, maxWidth || 999999)
+    // );
   }
 }
