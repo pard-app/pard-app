@@ -13,7 +13,7 @@ const algoliaClient = algoliasearch(
   functions.config().algolia.apikey
 );
 
-const rp = require("request-promise");
+//const rp = require("request-promise");
 
 // Create a HTTP request cloud function.
 export const sendListingsToAlgolia = functions
@@ -385,9 +385,10 @@ export const newOrderEmail = functions
           sum: order?.sum,
           orderNumber: order?.orderId,
           listings: listings,
-          delivery: order?.delivery
-            ? "🚚 € " + order?.seller.delivery_costs
-            : "",
+          delivery:
+            order?.delivery && order?.seller.delivery_costs
+              ? "🚚 € " + order?.seller.delivery_costs
+              : "",
         },
       };
 
@@ -420,9 +421,10 @@ export const newOrderEmail = functions
           vendorCompany: order?.seller.company ? order?.seller.company : "",
           vendorEmail: order?.seller.email,
           listings: listings,
-          delivery: order?.delivery
-            ? "🚚 € " + order?.seller.delivery_costs
-            : "",
+          delivery:
+            order?.delivery && order?.seller.delivery_costs
+              ? "🚚 € " + order?.seller.delivery_costs
+              : "",
         },
       };
 
@@ -445,6 +447,142 @@ export const newOrderEmail = functions
   });
 
 /* Placing orders */
+// export const placeOrder = functions
+//   .region("europe-west1")
+//   .https.onCall(async (data, context) => {
+//     const orders = data.orders;
+//     const delivery = data.delivery;
+//     const invoice = data.invoice;
+//     const buyer = data.buyer;
+//     const promises: any[] = [];
+//     const response = data.captcha;
+//     console.log("recaptcha response", response);
+//     return rp({
+//       uri: "https://recaptcha.google.com/recaptcha/api/siteverify",
+//       method: "POST",
+//       formData: {
+//         secret: functions.config().recaptcha.key,
+//         response: response,
+//       },
+//       json: true,
+//     })
+//       .then(async (result: any) => {
+//         console.log("recaptcha result", result);
+//         if (result.success) {
+//           orders.forEach((order: any) => {
+//             const vendorDoc = db.collection("vendors").doc(order.vendor).get();
+
+//             promises.push(vendorDoc);
+
+//             order.listings.forEach((listing: any) => {
+//               const listingDoc = db
+//                 .collection("listings")
+//                 .doc(listing.id)
+//                 .get();
+//               promises.push(listingDoc);
+//             });
+//           });
+
+//           let finalOrder: any;
+
+//           await Promise.all(promises).then((snapshots: any) => {
+//             const processedOrder = orders.map((order: any) => {
+//               const vendor = snapshots.find(
+//                 (document: any) => document.id === order.vendor
+//               );
+//               const vendorData = vendor.data();
+//               const seller = {
+//                 address: vendorData.address,
+//                 city: vendorData.city,
+//                 company: vendorData.company,
+//                 country: vendorData.country,
+//                 bank: vendorData.bank,
+//                 delivery: vendorData.delivery,
+//                 delivery_costs: vendorData.delivery_costs,
+//                 delivery_note: vendorData.delivery_note,
+//                 email: vendorData.email,
+//                 image: vendorData.image ? vendorData.image : "",
+//                 phone: vendorData.phone,
+//                 regno: vendorData.regno,
+//                 title: vendorData.title,
+//               };
+
+//               let deliveryCosts: number = 0;
+//               if (vendorData.delivery && vendorData.delivery_costs) {
+//                 deliveryCosts = vendorData.delivery_costs;
+//               }
+
+//               const processedListings = order.listings.map((listing: any) => {
+//                 const item = snapshots.find(
+//                   (document: any) => document.id === listing.id
+//                 );
+//                 const itemData = item.data();
+//                 const itemCost = itemData.price * listing.quantity;
+
+//                 return {
+//                   id: listing.id,
+//                   quantity: listing.quantity,
+//                   sum: itemCost,
+//                   title: itemData.title,
+//                   image: itemData.image,
+//                   price: itemData.price,
+//                   description: itemData.description,
+//                 };
+//               });
+
+//               // @TODO - check how to correctly add numbers with decimals
+//               const listingsCost = processedListings.reduce(
+//                 (i: number, j: any) => i + j.sum,
+//                 0
+//               );
+
+//               const sum = delivery
+//                 ? listingsCost + deliveryCosts
+//                 : listingsCost;
+
+//               const orderId = generateUniqueOrderId(vendorData, buyer);
+
+//               return {
+//                 vendor: order.vendor,
+//                 listings: processedListings,
+//                 sum: sum,
+//                 buyer: buyer,
+//                 seller: seller,
+//                 delivery: delivery,
+//                 orderId: orderId,
+//                 invoice: invoice,
+//               };
+//             });
+
+//             finalOrder = processedOrder;
+//           });
+
+//           const batch = db.batch();
+
+//           finalOrder.forEach((processedOrder: any) => {
+//             const newOrder = db.collection("orders").doc();
+//             batch.set(newOrder, {
+//               status: "New",
+//               date: Date.now(),
+//               completed: false,
+//               ...processedOrder,
+//             });
+//           });
+
+//           await batch.commit();
+
+//           return finalOrder;
+//         } else {
+//           console.log("Recaptcha verification failed. Are you a robot?");
+//           return false;
+//         }
+//       })
+//       .catch((reason: any) => {
+//         console.log("Recaptcha request failure", reason);
+//         return false;
+//       });
+//   });
+
 export const placeOrder = functions
   .region("europe-west1")
   .https.onCall(async (data, context) => {
@@ -453,132 +591,105 @@ export const placeOrder = functions
     const invoice = data.invoice;
     const buyer = data.buyer;
     const promises: any[] = [];
-    const response = data.captcha;
-    console.log("recaptcha response", response);
-    return rp({
-      uri: "https://recaptcha.google.com/recaptcha/api/siteverify",
-      method: "POST",
-      formData: {
-        secret: functions.config().recaptcha.key,
-        response: response,
-      },
-      json: true,
-    })
-      .then(async (result: any) => {
-        console.log("recaptcha result", result);
-        if (result.success) {
-          orders.forEach((order: any) => {
-            const vendorDoc = db.collection("vendors").doc(order.vendor).get();
 
-            promises.push(vendorDoc);
+    orders.forEach((order: any) => {
+      const vendorDoc = db.collection("vendors").doc(order.vendor).get();
 
-            order.listings.forEach((listing: any) => {
-              const listingDoc = db
-                .collection("listings")
-                .doc(listing.id)
-                .get();
-              promises.push(listingDoc);
-            });
-          });
+      promises.push(vendorDoc);
 
-          let finalOrder: any;
-
-          await Promise.all(promises).then((snapshots: any) => {
-            const processedOrder = orders.map((order: any) => {
-              const vendor = snapshots.find(
-                (document: any) => document.id === order.vendor
-              );
-              const vendorData = vendor.data();
-              const seller = {
-                address: vendorData.address,
-                city: vendorData.city,
-                company: vendorData.company,
-                country: vendorData.country,
-                bank: vendorData.bank,
-                delivery: vendorData.delivery,
-                delivery_costs: vendorData.delivery_costs,
-                delivery_note: vendorData.delivery_note,
-                email: vendorData.email,
-                image: vendorData.image ? vendorData.image : "",
-                phone: vendorData.phone,
-                regno: vendorData.regno,
-                title: vendorData.title,
-              };
-
-              let deliveryCosts: number = 0;
-              if (vendorData.delivery && vendorData.delivery_costs) {
-                deliveryCosts = vendorData.delivery_costs;
-              }
-
-              const processedListings = order.listings.map((listing: any) => {
-                const item = snapshots.find(
-                  (document: any) => document.id === listing.id
-                );
-                const itemData = item.data();
-                const itemCost = itemData.price * listing.quantity;
-
-                return {
-                  id: listing.id,
-                  quantity: listing.quantity,
-                  sum: itemCost,
-                  title: itemData.title,
-                  image: itemData.image,
-                  price: itemData.price,
-                  description: itemData.description,
-                };
-              });
-
-              // @TODO - check how to correctly add numbers with decimals
-              const listingsCost = processedListings.reduce(
-                (i: number, j: any) => i + j.sum,
-                0
-              );
-
-              const sum = delivery
-                ? listingsCost + deliveryCosts
-                : listingsCost;
-
-              const orderId = generateUniqueOrderId(vendorData, buyer);
-
-              return {
-                vendor: order.vendor,
-                listings: processedListings,
-                sum: sum,
-                buyer: buyer,
-                seller: seller,
-                delivery: delivery,
-                orderId: orderId,
-                invoice: invoice,
-              };
-            });
-
-            finalOrder = processedOrder;
-          });
-
-          const batch = db.batch();
-
-          finalOrder.forEach((processedOrder: any) => {
-            const newOrder = db.collection("orders").doc();
-            batch.set(newOrder, {
-              status: "New",
-              date: Date.now(),
-              completed: false,
-              ...processedOrder,
-            });
-          });
-
-          await batch.commit();
-
-          return finalOrder;
-        } else {
-          console.log("Recaptcha verification failed. Are you a robot?");
-          return false;
-        }
-      })
-      .catch((reason: any) => {
-        console.log("Recaptcha request failure", reason);
-        return false;
+      order.listings.forEach((listing: any) => {
+        const listingDoc = db.collection("listings").doc(listing.id).get();
+        promises.push(listingDoc);
       });
+    });
+
+    let finalOrder: any;
+
+    await Promise.all(promises).then((snapshots: any) => {
+      const processedOrder = orders.map((order: any) => {
+        const vendor = snapshots.find(
+          (document: any) => document.id === order.vendor
+        );
+        const vendorData = vendor.data();
+        const seller = {
+          address: vendorData.address,
+          city: vendorData.city,
+          company: vendorData.company,
+          country: vendorData.country,
+          bank: vendorData.bank,
+          delivery: vendorData.delivery,
+          delivery_costs: vendorData.delivery_costs,
+          delivery_note: vendorData.delivery_note,
+          email: vendorData.email,
+          image: vendorData.image ? vendorData.image : "",
+          phone: vendorData.phone,
+          regno: vendorData.regno,
+          title: vendorData.title,
+        };
+
+        let deliveryCosts: number = 0;
+        if (vendorData.delivery && vendorData.delivery_costs) {
+          deliveryCosts = vendorData.delivery_costs;
+        }
+
+        const processedListings = order.listings.map((listing: any) => {
+          const item = snapshots.find(
+            (document: any) => document.id === listing.id
+          );
+          const itemData = item.data();
+          const itemCost = itemData.price * listing.quantity;
+
+          return {
+            id: listing.id,
+            quantity: listing.quantity,
+            sum: itemCost,
+            title: itemData.title,
+            image: itemData.image,
+            price: itemData.price,
+            description: itemData.description,
+          };
+        });
+
+        // @TODO - check how to correctly add numbers with decimals
+        const listingsCost = processedListings.reduce(
+          (i: number, j: any) => i + j.sum,
+          0
+        );
+
+        const sum = delivery ? listingsCost + deliveryCosts : listingsCost;
+
+        const orderId = generateUniqueOrderId(vendorData, buyer);
+
+        return {
+          vendor: order.vendor,
+          listings: processedListings,
+          sum: sum,
+          buyer: buyer,
+          seller: seller,
+          delivery: delivery,
+          orderId: orderId,
+          invoice: invoice,
+        };
+      });
+
+      finalOrder = processedOrder;
+    });
+
+    const batch = db.batch();
+
+    finalOrder.forEach((processedOrder: any) => {
+      const newOrder = db.collection("orders").doc();
+      batch.set(newOrder, {
+        status: "New",
+        date: Date.now(),
+        completed: false,
+        ...processedOrder,
+      });
+    });
+
+    await batch.commit();
+
+    return finalOrder;
   });
 
 const generateUniqueOrderId = (vendor: any, buyer: any): string =>
