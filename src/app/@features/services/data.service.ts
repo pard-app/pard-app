@@ -9,7 +9,7 @@ import { OrderModel } from "../models/order.model";
 import { Observable } from "rxjs";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class DataService {
   constructor(
@@ -20,7 +20,9 @@ export class DataService {
 
   // https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
   uuidv4() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (
+      c
+    ) {
       var r = (Math.random() * 16) | 0,
         v = c == "x" ? r : (r & 0x3) | 0x8;
       return v.toString(16);
@@ -29,7 +31,7 @@ export class DataService {
 
   getMyListings() {
     return this.afStore
-      .collection<ListingModel>("listings", ref =>
+      .collection<ListingModel>("listings", (ref) =>
         ref
           .where("vendor", "==", `${this.afAuth.auth.currentUser.uid}`)
           .orderBy("date", "desc")
@@ -39,7 +41,7 @@ export class DataService {
 
   getMyOrders() {
     return this.afStore
-      .collection<OrderModel>("orders", ref =>
+      .collection<OrderModel>("orders", (ref) =>
         ref
           .where("vendor", "==", `${this.afAuth.auth.currentUser.uid}`)
           .orderBy("date", "desc")
@@ -49,7 +51,7 @@ export class DataService {
 
   getAllOrders() {
     return this.afStore
-      .collection<OrderModel>("orders", ref =>
+      .collection<OrderModel>("orders", (ref) =>
         ref
           .where("vendor", "==", `${this.afAuth.auth.currentUser.uid}`)
           .orderBy("date", "desc")
@@ -62,15 +64,12 @@ export class DataService {
       vendor: this.afAuth.auth.currentUser.uid,
       date: new Date().getTime(),
       image: image ? image : "",
-      ...listing
+      ...listing,
     });
   }
 
   async deleteListing(listing: ListingModel) {
-    return this.afStore
-      .collection("listings")
-      .doc(listing.id)
-      .delete();
+    return this.afStore.collection("listings").doc(listing.id).delete();
   }
 
   async publishListing(listing: ListingModel, action: boolean) {
@@ -88,14 +87,14 @@ export class DataService {
         title: res.title,
         description: res.description,
         price: res.price,
-        stock: res.stock
+        stock: res.stock,
       });
   }
 
   // https://stackoverflow.com/questions/58977241/how-to-get-the-resized-downloadurl-after-upload-with-firebase-storage-web-sdk
 
   delay(t, v?) {
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
       setTimeout(resolve.bind(null, v), t);
     });
   }
@@ -109,10 +108,10 @@ export class DataService {
       .ref(storageRef)
       .getDownloadURL()
       .toPromise()
-      .then(url => {
+      .then((url) => {
         return url;
       })
-      .catch(error => {
+      .catch((error) => {
         switch (error.code) {
           case "storage/object-not-found":
             return this.delay(2000).then(() => {
@@ -128,13 +127,13 @@ export class DataService {
   async uploadImage(image: any) {
     const id = this.uuidv4();
     const ref = `listings/${this.afAuth.auth.currentUser.uid}/${id}`;
-    const resized = `listings/${this.afAuth.auth.currentUser.uid}/${id}_500x500`;
+    const resized = `listings/${this.afAuth.auth.currentUser.uid}/${id}_1000x1000`;
 
     return this.afStorage
       .ref(ref)
       .putString(image, "data_url")
       .then(() => {
-        return this.keepTrying(15, resized).then(url => {
+        return this.keepTrying(15, resized).then((url) => {
           return url;
         });
       });

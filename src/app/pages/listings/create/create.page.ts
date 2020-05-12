@@ -54,7 +54,7 @@ export class CreatePage implements OnInit {
     this.uploadInProgress = true;
 
     await this.photoService
-      .getImageUrl(event.target.files[0], 500)
+      .getImageUrl(event.target.files[0], 1000)
       .then((image) => {
         this.data.uploadImage(image).then((final) => {
           this.uploadInProgress = false;
