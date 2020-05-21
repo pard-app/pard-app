@@ -8,7 +8,7 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-grid fixed *ngIf="vendor|async as item">
+  <ion-grid fixed *ngIf="vendor as item">
     <div class="languages ion-text-center">
       <img
         src="./assets/images/flags/united-kingdom.svg"
@@ -26,6 +26,27 @@
         (click)="setLanguage('lv')"
       />
     </div>
+
+    <ion-card class="ion-margin">
+      <p class="ion-padding">{{"RECOMMEND_STRIPE" | translate}}</p>
+      <ion-button
+        size="medium"
+        expand="block"
+        shape="round"
+        color="success"
+        class="ion-margin-bottom"
+        mode="ios"
+        [href]="formatStripeConnectLink()"
+      >
+        {{"CONNECT_WITH" | translate}}
+        <img
+          class="stripe-logo"
+          src="./assets/images/stripe/stripe-white.png"
+          alt=""
+        />
+      </ion-button>
+    </ion-card>
+
     <ion-row>
       <ion-col size="12">
         <ion-img [src]="item.image"></ion-img>
