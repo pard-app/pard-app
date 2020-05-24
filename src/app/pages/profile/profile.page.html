@@ -27,7 +27,7 @@
       />
     </div>
 
-    <ion-card class="ion-margin">
+    <ion-card class="ion-margin-vertical" *ngIf="!item.stripe_id">
       <p class="ion-padding">{{"RECOMMEND_STRIPE" | translate}}</p>
       <ion-button
         size="medium"
@@ -79,6 +79,16 @@
         </p>
       </ion-col>
     </ion-row>
+
+    <ion-button
+      [href]="formatStripeLoginLink()"
+      color="success"
+      expand="block"
+      shape="round"
+    >
+      <ion-icon slot="start" name="shield-checkmark"></ion-icon>
+      <img src="./assets/images/stripe/stripe-white.png" class="stripe-logo" />
+    </ion-button>
 
     <ion-button [routerLink]="'edit'" expand="block" shape="round">
       {{ "EDIT" | translate }}

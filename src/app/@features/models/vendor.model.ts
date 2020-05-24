@@ -18,4 +18,5 @@ export class VendorModel {
     lat: number;
     lng: number;
   };
+  stripe_id?: string;
 }

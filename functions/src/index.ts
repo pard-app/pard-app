@@ -1,6 +1,14 @@
 // Import all needed modules.
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import Stripe from "stripe";
+const secret = functions.config().stripe.test_secret_key;
+
+// Set up Stripe
+const stripe = new Stripe(secret, {
+  apiVersion: "2020-03-02",
+  typescript: true,
+});
 
 // Set up Firestore.
 admin.initializeApp();
@@ -761,5 +769,29 @@ export const orderOnUpdate = functions
         })
         .catch((err: any) => console.log(err));
       // Update stock
+    }
+  });
+
+// Connect with Stripe
+export const connectWithStripe = functions
+  .region("europe-west1")
+  .runWith(runtimeOpts) // @ts-ignore
+  .https.onRequest(async (req: any, res: any) => {
+    const vendor = req.query.state;
+    const code = req.query.code;
+    //const scope = req.query.scope;
+
+    const response = await stripe.oauth.token({
+      grant_type: "authorization_code",
+      code: code,
+    });
+
+    if (response && response.stripe_user_id) {
+      await db
+        .collection("vendors")
+        .doc(vendor)
+        .update({ stripe_id: response.stripe_user_id });
+
+      res.redirect("https://pard.app");
     }
   });

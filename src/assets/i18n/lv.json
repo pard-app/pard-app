@@ -118,5 +118,6 @@
   "GEOLOCATE": "Lokācija",
   "LOCATION_ON_MAP": "Vieta uz kartes",
   "VIEW": "Apskatīt",
-  "CONNECT_WITH": "Sasaistīt ar"
+  "CONNECT_WITH": "Sasaistīt ar",
+  "RECOMMEND_STRIPE": "Mēs iesakām pievienoties mūsu platformai ar Stripe. Mēs to izmantojam lai uzlabotu pircēju pieredzi, ļaujot tiem norēķināties uzreiz ar kredītkarti, un kā papildu drošības elementu. Jums, kā uzņēmuma īpašniekiem, būs iespējams sekot līdzi ienākumiem un statistikai par pirkumiem. Bez savienojuma ar Stripe, Jums nebūs iespējams pieņemt maksājumus mūsu platformā."
 }

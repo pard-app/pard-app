@@ -43,7 +43,13 @@ export class ProfilePage implements OnInit {
 
   formatStripeConnectLink(): string {
     if (this.vendor) {
-      return `https://connect.stripe.com/express/oauth/authorize?client_id=${environment.stripeConfig.clientId}&suggested_capabilities[]=transfers&stripe_user[email]=${this.vendor.email}`;
+      return `https://connect.stripe.com/express/oauth/authorize?client_id=${environment.stripeConfig.clientId}&suggested_capabilities[]=transfers&stripe_user[email]=${this.vendor.email}&stripe_user[phone_number]=${this.vendor.phone}&stripe_user[business_name]=${this.vendor.company}&stripe_user[currency]=eur&stripe_user[city]=${this.vendor.city}&stripe_user[street_address]=${this.vendor.address}&state=${this.afAuth.auth.currentUser.uid}`;
+    }
+  }
+
+  formatStripeLoginLink(): string {
+    if (this.vendor.stripe_id) {
+      return `https://connect.stripe.com/express/oauth/authorize?client_id=${environment.stripeConfig.clientId}&stripe_landing=login&stripe_user[email]=${this.vendor.email}`;
     }
   }
 }
