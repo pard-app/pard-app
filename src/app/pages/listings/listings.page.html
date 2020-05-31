@@ -1,74 +1,95 @@
 <ion-header>
-    <ion-toolbar>
-        <ion-title>{{ "MY_LISTINGS" | translate }}</ion-title>
-        <ion-buttons slot="start">
-            <ion-back-button [text]="'BACK' | translate"></ion-back-button>
-        </ion-buttons>
-        <ion-buttons slot="end">
-            <ion-button (click)="view = !view">
-                <ion-icon slot="icon-only" [name]="view? 'albums' : 'list-circle'"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
+  <ion-toolbar>
+    <ion-title>{{ "MY_LISTINGS" | translate }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button [text]="'BACK' | translate"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="view = !view">
+        <ion-icon
+          slot="icon-only"
+          [name]="view? 'albums' : 'list-circle'"
+        ></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 <ion-content>
-    <!-- 
+  <!-- 
     @todo: Add virtual scroll when item height issue is fixed.
     https://github.com/ionic-team/ionic/issues/18409 
   -->
 
-    <ion-grid>
-        <ion-row>
-            <ion-col size="12">
-                <ion-list [class]="'list-' + view">
-                    <ion-item-sliding *ngFor="let item of listings | async">
-                        <ion-item-options side="start">
-                            <ion-item-option type="button">
-                                <ion-icon
-                                    color="primary"
-                                    [name]="item.published ? 'eye-off' : 'eye'"
-                                    size="large"
-                                    slot="start"
-                                    (click)="publishListing(item, !item.published)"
-                                ></ion-icon>
-                                <ion-label (click)="publishListing(item, !item.published)">
-                                    <ion-text color="primary">{{ (item.published ? "HIDE" : "PUBLISH") | translate }}</ion-text></ion-label
-                                >
-                            </ion-item-option>
-                        </ion-item-options>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="12">
+        <ion-list [class]="'list-' + view">
+          <ion-item-sliding *ngFor="let item of listings | async">
+            <ion-item-options side="start">
+              <ion-item-option type="button">
+                <ion-icon
+                  color="primary"
+                  [name]="item.published ? 'eye-off' : 'eye'"
+                  size="large"
+                  slot="start"
+                  (click)="publishListing(item, !item.published)"
+                ></ion-icon>
+                <ion-label (click)="publishListing(item, !item.published)">
+                  <ion-text color="primary"
+                    >{{ (item.published ? "HIDE" : "PUBLISH") | translate
+                    }}</ion-text
+                  ></ion-label
+                >
+              </ion-item-option>
+            </ion-item-options>
 
-                        <ion-item lines="none" (click)="editListing(item)">
-                            <ion-card [class]="item.published ? 'active' : 'inactive'">
-                                <ion-card-header class="ion-no-padding">
-                                    <ion-img *ngIf="item.image" [src]="item.image" [alt]="item.title"></ion-img>
-                                    <div class="ion-padding">
-                                        <ion-card-subtitle> {{ item.date | date }}</ion-card-subtitle>
-                                        <ion-card-title class="title ion-text-left">{{ item.title }} </ion-card-title>
-                                        <ion-card-title class="details">
-                                            <ion-badge color="primary">{{item.stock}}</ion-badge>
-                                            <ion-chip color="primary">{{item.price | currency }}</ion-chip></ion-card-title
-                                        >
-                                    </div>
-                                </ion-card-header>
-                                <ion-card-content>
-                                    {{ item.description }}
-                                </ion-card-content>
-                            </ion-card>
-                        </ion-item>
-                        <ion-item-options side="end">
-                            <ion-item-option slot="icon-only"
-                                ><ion-icon color="danger" name="trash" size="large" (click)="deleteListing(item)"></ion-icon
-                            ></ion-item-option>
-                        </ion-item-options>
-                    </ion-item-sliding>
-                </ion-list>
-            </ion-col>
-        </ion-row>
-    </ion-grid>
+            <ion-item lines="none" (click)="editListing(item)">
+              <ion-card [class]="item.published ? 'active' : 'inactive'">
+                <ion-card-header class="ion-no-padding">
+                  <ion-img
+                    *ngIf="item.image"
+                    [src]="item.image"
+                    [alt]="item.title"
+                  ></ion-img>
+                  <div class="listing-wrapper">
+                    <ion-card-subtitle>
+                      {{ item.date | date }}</ion-card-subtitle
+                    >
+                    <ion-card-title class="title ion-text-left"
+                      >{{ item.title }}
+                    </ion-card-title>
+                    <ion-card-title class="details">
+                      <ion-badge color="primary">{{item.stock}}</ion-badge>
+                      <ion-chip color="primary"
+                        >{{item.price | currency }}</ion-chip
+                      ></ion-card-title
+                    >
+                  </div>
+                </ion-card-header>
+                <ion-card-content>
+                  {{ item.description }}
+                </ion-card-content>
+              </ion-card>
+            </ion-item>
+            <ion-item-options side="end">
+              <ion-item-option slot="icon-only"
+                ><ion-icon
+                  color="danger"
+                  name="trash"
+                  size="large"
+                  (click)="deleteListing(item)"
+                ></ion-icon
+              ></ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ion-list>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
-    <ion-fab vertical="bottom" horizontal="center" slot="fixed">
-        <ion-fab-button [routerLink]="'create'">
-            <ion-icon name="add-circle"></ion-icon>
-        </ion-fab-button>
-    </ion-fab>
+  <ion-fab vertical="bottom" horizontal="center" slot="fixed">
+    <ion-fab-button [routerLink]="'create'">
+      <ion-icon name="add-circle"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

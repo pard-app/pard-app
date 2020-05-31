@@ -32,7 +32,7 @@
   "CATEGORIES": "Categories",
   "REGISTER": "Register",
   "CONNECT_WITH": "Connect with",
-  "RECOMMEND_STRIPE": "We highly recommend to join us with Stripe. We use it enhance overall user payment experience and safety. Users can easily insert their card information and send money to vendors. It also provides a high security layer and money return options. You, as a business can track income and statistics in Stripe. Without this, users are left with the option of Direct Payments through bank.",
+  "RECOMMEND_STRIPE": "We highly recommend to join us with Stripe. We use it enhance overall user payment experience and safety. Users can easily insert their card information and send money to vendors. It also provides a high security layer and money return options. You, as a business can track income and statistics in Stripe. Without Stripe, you will not be able to accept payments on our platform.",
   "FOLLOW_LEGAL_TERMS": "I will use this app in accordance with the laws of the country.",
   "NAME_OF_BUSINESS": "Name of business",
   "ADDRESS": "Address",
@@ -120,5 +120,9 @@
   "GEOLOCATE": "Locate",
   "REJECT_CONFIRMATION": "Are you sure you want to reject this order?",
   "LOCATION_ON_MAP": "Location on a map",
-  "VIEW": "View"
+  "VIEW": "View",
+  "ACTIVE": "Active",
+  "INACTIVE": "Inactive",
+  "HELP": "Help",
+  "HELP_CONTENT": "<h1>Activating your account</h1><p>In order for your account to become active and visible on the site, you need to publish at least one listing.</p><h1>Registering with Stripe</h1><p>In order for customers to be able to make purchases from your shop, you need to link you account with Stripe in the Profile tab.</p><h1>Managing orders</h1><p>Orders made from our site will go to Orders tab. You will be notified about a new order via the e-mail you provided when registering. You can confirm or reject the order, and the buyer will instantly get a follow up email about the order status. If you can't fulfill the order, reject it and a refund to the buyer will be issued automatically. After confirming the order, you need to deliver the goods the person has ordered and then you can mark the order as Completed. All the information needed for the delivery will be displayed in the Orders tab and in your e-mail.</p><h1>Making changes to your account</h1><p>If you want to make changes to your account which are not accessible through the Profile page (such as e-mail address or location) or delete your account completely, please get in touch with us at <a href='mailto:pard@pard.app'>pard@pard.app</a> and we will gladly assist you."
 }

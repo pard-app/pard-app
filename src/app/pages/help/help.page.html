@@ -1,0 +1,15 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ "HELP" | translate }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button
+        [text]="'BACK' | translate"
+        defaultHref="app/profile"
+      ></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <main [innerHTML]="'HELP_CONTENT' | translate"></main>
+</ion-content>

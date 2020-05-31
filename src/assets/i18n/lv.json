@@ -119,5 +119,9 @@
   "LOCATION_ON_MAP": "Vieta uz kartes",
   "VIEW": "Apskatīt",
   "CONNECT_WITH": "Sasaistīt ar",
-  "RECOMMEND_STRIPE": "Mēs iesakām pievienoties mūsu platformai ar Stripe. Mēs to izmantojam lai uzlabotu pircēju pieredzi, ļaujot tiem norēķināties uzreiz ar kredītkarti, un kā papildu drošības elementu. Jums, kā uzņēmuma īpašniekiem, būs iespējams sekot līdzi ienākumiem un statistikai par pirkumiem. Bez savienojuma ar Stripe, Jums nebūs iespējams pieņemt maksājumus mūsu platformā."
+  "RECOMMEND_STRIPE": "Mēs iesakām pievienoties mūsu platformai ar Stripe. Mēs to izmantojam lai uzlabotu pircēju pieredzi, ļaujot tiem norēķināties uzreiz ar kredītkarti, un kā papildu drošības elementu. Jums, kā uzņēmuma īpašniekiem, būs iespējams sekot līdzi ienākumiem un statistikai par pirkumiem. Bez savienojuma ar Stripe, Jums nebūs iespējams pieņemt maksājumus mūsu platformā.",
+  "ACTIVE": "Aktīvs",
+  "INACTIVE": "Neaktīvs",
+  "HELP": "Palīdzība",
+  "HELP_CONTENT": "<h1>Konta aktivizēšana</h1><p>Lai jūsu konts kļūtu redzams mūsu mājaslapā, jums nepieciešams publicēt vismaz vienu sludinājumu.</p><h1>Reģistrēšanās ar Stripe</h1><p>Lai pircēji varētu veikt pasūtījumus no jūsu veikala, jums nepieciešams sasaistīt savu kontu ar Stripe no mūsu aplikācijas Profila sadaļas.</p><h1>Pasūtījumu pārvaldība</h1><p>Mājaslapā veiktie pasūtījumi nonāks jūsu Pasūtījumu sadaļā, kā arī jūs saņemsiet paziņojumu e-pastā. Pasūtījumu sadaļā būs iespējams tos apstiprināt vai noraidīt, un pircējs uzreiz saņems e-pastu par statusa maiņu. Ja jūs nevarat izpildīt pasūtījumu, noraidiet to un pircējam automātiski tiks veikta naudas atgriešana. Pēc pasūtījuma apstiprināšanas, jums nepieciešams to piegādāt pircējam, pēc tam atzīmējot pasūtījumu kā pabeigtu. Visa nepieciešamā informācija piegādei tiks atspoguļota Pasūtījumu sadaļā un jūsu e-pastā.</p><h1>Izmaiņu veikšana lietotāja kontā</h1><p>Ja jūs gribat veikt izmaiņas lietotāja kontā, kas nav pieejamas Profila sadaļā, piemēram e-pasta, atrašanās vietas maiņu, vai arī dzēst kontu pavisam, lūdzu sazinieties ar mums, rakstot uz <a href='mailto:pard@pard.app'>pard@pard.app</a> un mēs ar prieku jums palīdzēsim."
 }

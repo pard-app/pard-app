@@ -118,5 +118,9 @@
   "FIND_MY_SHOP": "Rasti adresa",
   "GEOLOCATE": "Mano lokacija",
   "LOCATION_ON_MAP": "Vieta žemėlapyje",
-  "VIEW": "Peržiūra"
+  "VIEW": "Peržiūra",
+  "ACTIVE": "Active",
+  "INACTIVE": "Inactive",
+  "HELP": "Padėti",
+  "HELP_CONTENT": "<h1>Publikuoti jūsų paskyrą</h1>Norint, kad jūsų paskyra būtų matoma, turite įkelti bent vieną prekę.<h1>Registruotis su Stripe</h1><p>Norint, jog jūsų prekes būtų galima pirkti mūsų svetainėje, turite nurodyti savo Stripe paskyros nuorodą savo profilyje.</p><h1>Užsakymų tvarkymas</h1><p>Svetainėje padaryti užsakymai bus atvaizduojami užsakymų skiltyje. Jūs gausite pranešimą el. paštu, kurį nurodėte registracijos metu, apie naują užsakymą. Jūs galite patvirtinti arba atmesti užsakymą ir pirkėjas iš karto bus informuotas apie užsakymo pasikeitimą. Jei negalite įgyvendinti užsakymo, jį atmetus pinigai bus grąžinami pirkėjui. Po patvirtinimo, pristačius prekę, pažymėkite užsakymą kaip užbaigtą. Visa reikiama informacija, reikalinga pristatymui yra atvaizduojama užsakymų skiltyje ir el. paštu.</p><h1>Paskyros pakeitimai</h1><p>Jei jūs norite pakeisti savo paskyros informaciją kuri nėra keičiama nustatymuose (jūsų el. Paštas ar vietovė), ar norite visiškai pašalinti paskyrą, praneškite tai mums el. paštu <a href='mailto:pard@pard.app'>pard@pard.app</a> ir mes mielai jums padėsime.</p>"
 }
