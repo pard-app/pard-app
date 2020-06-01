@@ -651,13 +651,14 @@ export const placeOrder = functions.region("europe-west1").https.onCall(async (d
 
     const batch = db.batch();
 
-    const payAndAddToDb = async () => {
+    const createPaymentAndAddToDb = async () => {
         for (const processedOrder of finalOrder) {
             const paymentIntent = await stripe.paymentIntents.create({
                 payment_method_types: ["card"],
                 amount: processedOrder.sum * 100, // convert to cents
                 currency: "eur",
                 application_fee_amount: 2,
+                confirm: false,
                 transfer_data: {
                     destination: processedOrder.seller.stripe_id,
                 },
@@ -670,6 +671,7 @@ export const placeOrder = functions.region("europe-west1").https.onCall(async (d
             // add order to firebase
             const newOrder = db.collection("orders").doc();
             batch.set(newOrder, {
+                id: newOrder.id,
                 status: "New",
                 date: Date.now(),
                 completed: false,
@@ -678,16 +680,25 @@ export const placeOrder = functions.region("europe-west1").https.onCall(async (d
             });
         }
     };
+    try {
+        await createPaymentAndAddToDb();
 
-    await payAndAddToDb();
+        await batch.commit();
 
-    await batch.commit();
-
-    return finalOrder;
+        return finalOrder;
+    } catch (error) {
+        return { error };
+    }
 });
 
 const generateUniqueOrderId = (vendor: any, buyer: any): string =>
     `PARD-${vendor.title.slice(0, 4).trim().toUpperCase()}-${buyer.firstName.slice(0, 3).trim().toUpperCase()}-${Math.floor(Math.random() * 100000)}`;
+
+export const updateOrderPaymentStatus = functions.region("europe-west1").https.onCall(async ({ id, paymentStatus }, context) => {
+    return await db.collection("orders").doc(id).update({
+        paymentStatus,
+    });
+});
 
 export const orderOnUpdate = functions
     .region("europe-west1")
