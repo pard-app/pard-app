@@ -2,6 +2,9 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import Stripe from "stripe";
+import { VendorModel } from "../../src/app/@features/models/vendor.model";
+import { Order, FinalOrder } from "./models";
+import { DocumentSnapshot } from "firebase-functions/lib/providers/firestore";
 const secret = functions.config().stripe.test_secret_key;
 
 // Set up Stripe
@@ -569,14 +572,10 @@ export const newOrderEmail = functions
 //       });
 //   });
 
-export const placeOrder = functions.region("europe-west1").https.onCall(async (data, context) => {
-    const orders = data.orders;
-    const delivery = data.delivery;
-    const invoice = data.invoice;
-    const buyer = data.buyer;
-    const promises: any[] = [];
+export const placeOrder = functions.region("europe-west1").https.onCall(async ({ orders, delivery, invoice, buyer }, context) => {
+    const promises: Promise<DocumentSnapshot>[] = [];
 
-    orders.forEach((order: any) => {
+    orders.forEach((order: Order) => {
         const vendorDoc = db.collection("vendors").doc(order.vendor).get();
 
         promises.push(vendorDoc);
@@ -587,109 +586,110 @@ export const placeOrder = functions.region("europe-west1").https.onCall(async (d
         });
     });
 
-    const snapshots = await Promise.all(promises);
+    const snapshots: DocumentSnapshot[] = await Promise.all(promises);
 
-    const finalOrder = orders.map((order: any) => {
-        const vendor = snapshots.find(({ id }) => id === order.vendor);
-        const vendorData = vendor.data();
-        const seller = {
-            address: vendorData.address,
-            city: vendorData.city,
-            company: vendorData.company,
-            country: vendorData.country,
-            bank: vendorData.bank,
-            delivery: vendorData.delivery,
-            delivery_costs: vendorData.delivery_costs,
-            delivery_note: vendorData.delivery_note,
-            email: vendorData.email,
-            image: vendorData.image ? vendorData.image : "",
-            phone: vendorData.phone,
-            regno: vendorData.regno,
-            title: vendorData.title,
-            stripe_id: vendorData.stripe_id,
-        };
+    const finalOrder: FinalOrder = orders.reduce(
+        (accumulator: FinalOrder, order: Order) => {
+            const vendor = snapshots.find(({ id }) => id === order.vendor);
+            if (!vendor) return new Error(`Could not find vendor ${order.vendor}`);
+            const vendorData: VendorModel = vendor.data() as VendorModel;
 
-        let deliveryCosts: number = 0;
-        if (vendorData.delivery && vendorData.delivery_costs) {
-            deliveryCosts = vendorData.delivery_costs;
-        }
+            let deliveryCosts: number = 0;
+            if (vendorData.delivery && vendorData.delivery_costs) {
+                deliveryCosts = vendorData.delivery_costs;
+            }
 
-        const processedListings = order.listings.map((listing: any) => {
-            const item = snapshots.find((document: any) => document.id === listing.id);
-            const itemData = item.data();
-            const itemCost = itemData.price * listing.quantity;
+            const processedListings = order.listings.map((listing: any) => {
+                const item = snapshots.find((document: any) => document.id === listing.id);
+                if (!item) return new Error(`Could not find item ${listing.title}`);
+                const itemData = item.data() as any;
+                const itemCost = itemData.price * listing.quantity;
+
+                return {
+                    id: listing.id,
+                    quantity: listing.quantity,
+                    sum: itemCost,
+                    title: itemData.title,
+                    image: itemData.image,
+                    price: itemData.price,
+                    description: itemData.description,
+                };
+            });
+
+            // @TODO - check how to correctly add numbers with decimals (js quirks)
+            const listingsCost = processedListings.reduce((i: number, j: any) => i + j.sum, 0);
+
+            const sum = delivery ? listingsCost + deliveryCosts : listingsCost;
+
+            const orderId = generateUniqueOrderId(vendorData, buyer);
 
             return {
-                id: listing.id,
-                quantity: listing.quantity,
-                sum: itemCost,
-                title: itemData.title,
-                image: itemData.image,
-                price: itemData.price,
-                description: itemData.description,
-            };
-        });
+                ordersPriceSum: accumulator.ordersPriceSum + sum,
+                orders: [
+                    ...accumulator.orders,
+                    { vendor: order.vendor, listings: processedListings, sum, buyer, seller: vendorData, delivery, orderId, invoice },
+                ],
+            } as FinalOrder;
+        },
+        {
+            ordersPriceSum: 0,
+            orders: [],
+        } as FinalOrder
+    );
 
-        // @TODO - check how to correctly add numbers with decimals (js quirks)
-        const listingsCost = processedListings.reduce((i: number, j: any) => i + j.sum, 0);
-
-        const sum = delivery ? listingsCost + deliveryCosts : listingsCost;
-
-        const orderId = generateUniqueOrderId(vendorData, buyer);
-
-        return {
-            vendor: order.vendor,
-            listings: processedListings,
-            sum,
-            buyer,
-            seller,
-            delivery,
-            orderId,
-            invoice,
-        };
-    });
-
-    const batch = db.batch();
-
-    const createPaymentAndAddToDb = async () => {
-        for (const processedOrder of finalOrder) {
-            const paymentIntent = await stripe.paymentIntents.create({
-                payment_method_types: ["card"],
-                amount: processedOrder.sum * 100, // convert to cents
-                currency: "eur",
-                application_fee_amount: 2,
-                confirm: false,
-                transfer_data: {
-                    destination: processedOrder.seller.stripe_id,
-                },
-            });
-
-            // add the whole paymentIntent obj to finalOrder that we send to FE
-            const orderRef = finalOrder.find(({ vendor }: { vendor: string }) => vendor === processedOrder.vendor);
-            orderRef.paymentIntent = paymentIntent;
-
-            // add order to firebase
-            const newOrder = db.collection("orders").doc();
-            batch.set(newOrder, {
-                id: newOrder.id,
-                status: "New",
-                date: Date.now(),
-                completed: false,
-                ...processedOrder,
-                paymentStatus: paymentIntent.status,
-            });
-        }
-    };
     try {
-        await createPaymentAndAddToDb();
-
-        await batch.commit();
-
+        await createPaymentAndAddToDb(finalOrder);
         return finalOrder;
     } catch (error) {
         return { error };
     }
 });
+
+const createPaymentAndAddToDb = async (finalOrder: FinalOrder) => {
+    const batch = db.batch();
+    const currency: string = "eur";
+    const newPaymentIntentGroup = db.collection("paymentIntents").doc();
+
+    const paymentIntent = await stripe.paymentIntents.create({
+        payment_method_types: ["card"],
+        amount: finalOrder.ordersPriceSum * 100, // convert to cents
+        currency,
+        application_fee_amount: 20, // euro cents
+        confirm: false,
+        transfer_group: newPaymentIntentGroup.id,
+    });
+
+    for (const processedOrder of finalOrder.orders) {
+        const transfer = await stripe.transfers.create({
+            amount: processedOrder.sum,
+            currency,
+            destination: processedOrder.seller.stripe_id,
+            transfer_group: newPaymentIntentGroup.id,
+        });
+        // add order to firebase
+        const newOrder = db.collection("orders").doc();
+        // add id to order we return in FE
+        processedOrder.id = newOrder.id;
+        processedOrder.transfer = transfer;
+
+        // add the whole paymentIntent obj firebase
+        batch.set(newOrder, {
+            id: newOrder.id,
+            status: "New",
+            date: Date.now(),
+            completed: false,
+            ...processedOrder,
+            paymentStatus: paymentIntent.status,
+        });
+    }
+
+    batch.set(newPaymentIntentGroup, {
+        ...finalOrder,
+        paymentIntent,
+    });
+
+    await batch.commit();
+};
 
 const generateUniqueOrderId = (vendor: any, buyer: any): string =>
     `PARD-${vendor.title.slice(0, 4).trim().toUpperCase()}-${buyer.firstName.slice(0, 3).trim().toUpperCase()}-${Math.floor(Math.random() * 100000)}`;
