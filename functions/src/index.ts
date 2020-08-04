@@ -598,96 +598,105 @@ export const placeOrder = functions
   .region("europe-west1")
   .https.onCall(async ({ orders, delivery, invoice, buyer }, context) => {
     const promises: Promise<DocumentSnapshot>[] = [];
+    try {
+      orders.forEach((order: Order) => {
+        const vendorDoc = db.collection("vendors").doc(order.vendor).get();
 
-    orders.forEach((order: Order) => {
-      const vendorDoc = db.collection("vendors").doc(order.vendor).get();
+        promises.push(vendorDoc);
 
-      promises.push(vendorDoc);
-
-      order.listings.forEach((listing: any) => {
-        const listingDoc = db.collection("listings").doc(listing.id).get();
-        promises.push(listingDoc);
+        order.listings.forEach((listing: any) => {
+          const listingDoc = db.collection("listings").doc(listing.id).get();
+          promises.push(listingDoc);
+        });
       });
-    });
+    } catch (error) {
+      return { error };
+    }
 
     const snapshots: DocumentSnapshot[] = await Promise.all(promises);
 
-    const finalOrder: FinalOrder = orders.reduce(
-      (accumulator: FinalOrder, order: Order) => {
-        const vendor = snapshots.find(({ id }) => id === order.vendor);
-        if (!vendor) return new Error(`Could not find vendor ${order.vendor}`);
-        const vendorData: VendorModel = vendor.data() as VendorModel;
+    try {
+      const finalOrder: FinalOrder = orders.reduce(
+        (accumulator: FinalOrder, order: Order) => {
+          const vendor = snapshots.find(({ id }) => id === order.vendor);
+          if (!vendor)
+            return new Error(`Could not find vendor ${order.vendor}`);
+          const vendorData: VendorModel = vendor.data() as VendorModel;
 
-        let deliveryCosts: number = 0;
-        if (vendorData.delivery && vendorData.delivery_costs) {
-          deliveryCosts = vendorData.delivery_costs;
-        }
+          let deliveryCosts: number = 0;
+          if (vendorData.delivery && vendorData.delivery_costs) {
+            deliveryCosts = vendorData.delivery_costs;
+          }
 
-        const processedListings = order.listings.map((listing: any) => {
-          const item = snapshots.find(
-            (document: any) => document.id === listing.id
+          const processedListings = order.listings.map((listing: any) => {
+            const item = snapshots.find(
+              (document: any) => document.id === listing.id
+            );
+            if (!item) return new Error(`Could not find item ${listing.title}`);
+            const itemData = item.data() as any;
+            const itemCost = itemData.price * listing.quantity;
+
+            return {
+              id: listing.id,
+              quantity: listing.quantity,
+              sum: itemCost,
+              title: itemData.title,
+              image: itemData.image,
+              price: itemData.price,
+              description: itemData.description,
+            };
+          });
+
+          // @TODO - check how to correctly add numbers with decimals (js quirks)
+          const listingsCost = processedListings.reduce(
+            (i: number, j: any) => i + j.sum,
+            0
           );
-          if (!item) return new Error(`Could not find item ${listing.title}`);
-          const itemData = item.data() as any;
-          const itemCost = itemData.price * listing.quantity;
+
+          const sum = delivery ? listingsCost + deliveryCosts : listingsCost;
+
+          const orderId = generateUniqueOrderId(vendorData, buyer);
 
           return {
-            id: listing.id,
-            quantity: listing.quantity,
-            sum: itemCost,
-            title: itemData.title,
-            image: itemData.image,
-            price: itemData.price,
-            description: itemData.description,
-          };
-        });
+            ordersPriceSum: accumulator.ordersPriceSum + sum,
+            orders: [
+              ...accumulator.orders,
+              {
+                vendor: order.vendor,
+                listings: processedListings,
+                sum,
+                buyer,
+                seller: vendorData,
+                delivery,
+                orderId,
+                invoice,
+              },
+            ],
+          } as FinalOrder;
+        },
+        {
+          ordersPriceSum: 0,
+          orders: [],
+        } as FinalOrder
+      );
 
-        // @TODO - check how to correctly add numbers with decimals (js quirks)
-        const listingsCost = processedListings.reduce(
-          (i: number, j: any) => i + j.sum,
-          0
-        );
-
-        const sum = delivery ? listingsCost + deliveryCosts : listingsCost;
-
-        const orderId = generateUniqueOrderId(vendorData, buyer);
-
-        return {
-          ordersPriceSum: accumulator.ordersPriceSum + sum,
-          orders: [
-            ...accumulator.orders,
-            {
-              vendor: order.vendor,
-              listings: processedListings,
-              sum,
-              buyer,
-              seller: vendorData,
-              delivery,
-              orderId,
-              invoice,
-            },
-          ],
-        } as FinalOrder;
-      },
-      {
-        ordersPriceSum: 0,
-        orders: [],
-      } as FinalOrder
-    );
-
-    try {
-      await createPaymentAndAddToDb(finalOrder);
-      return finalOrder;
+      try {
+        await createPaymentAndAddToDb(finalOrder, buyer);
+        return finalOrder;
+      } catch (error) {
+        return { error };
+      }
     } catch (error) {
       return { error };
     }
   });
 
-const createPaymentAndAddToDb = async (finalOrder: FinalOrder) => {
+const createPaymentAndAddToDb = async (finalOrder: FinalOrder, buyer: any) => {
   const batch = db.batch();
   const currency: string = "eur";
   const currentDate = Date.now();
   const newPaymentIntentGroup = db.collection("paymentIntents").doc();
+  const FEE: number = 400; // cents
 
   const paymentIntent = await stripe.paymentIntents.create({
     payment_method_types: ["card"],
@@ -702,11 +711,12 @@ const createPaymentAndAddToDb = async (finalOrder: FinalOrder) => {
     const newTransfer = db.collection("transfers").doc();
 
     batch.set(newTransfer, {
-      amount: processedOrder.sum,
+      amount: processedOrder.sum * 100 - FEE,
       currency,
       destination: processedOrder.seller.stripe_id,
       transfer_group: newPaymentIntentGroup.id,
       date: currentDate,
+      buyer,
     });
 
     // add order to firebase
@@ -732,16 +742,8 @@ const createPaymentAndAddToDb = async (finalOrder: FinalOrder) => {
   });
 
   await batch.commit();
+  return paymentIntent;
 };
-
-const generateUniqueOrderId = (vendor: any, buyer: any): string =>
-  `PARD-${vendor.title
-    .slice(0, 4)
-    .trim()
-    .toUpperCase()}-${buyer.firstName
-    .slice(0, 3)
-    .trim()
-    .toUpperCase()}-${Math.floor(Math.random() * 100000)}`;
 
 export const updateOrderPaymentStatus = functions
   .region("europe-west1")
@@ -750,6 +752,16 @@ export const updateOrderPaymentStatus = functions
       paymentStatus,
     });
   });
+
+const generateUniqueOrderId = (vendor: any, buyer: any): string => {
+  return `PARD-${vendor.title
+    .slice(0, 4)
+    .trim()
+    .toUpperCase()}-${buyer.firstName
+    .slice(0, 3)
+    .trim()
+    .toUpperCase()}-${Math.floor(Math.random() * 100000)}`;
+};
 
 /* Transfer money to vendors (payouts) 
 1. Loop through orders, sort by date - if older than x, then proceed
@@ -769,7 +781,7 @@ export const orderOnUpdate = functions
   .onUpdate(async (change, context) => {
     const order = change.after.data();
 
-    if (order && order.status == "Confirmed") {
+    if (order && order.status === "Confirmed") {
       // Send e-mail
       let listings: string = "";
 
@@ -824,7 +836,7 @@ export const orderOnUpdate = functions
         })
         .catch((err: any) => console.log(err));
       // Update stock
-    } else if (order && order.status == "Rejected") {
+    } else if (order && order.status === "Rejected") {
       // Send e-mail
       let listings: string = "";
 
