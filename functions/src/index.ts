@@ -9,8 +9,8 @@ const secret = functions.config().stripe.test_secret_key;
 
 // Set up Stripe
 const stripe = new Stripe(secret, {
-    apiVersion: "2020-03-02",
-    typescript: true,
+  apiVersion: "2020-03-02",
+  typescript: true,
 });
 
 // Set up Firestore.
@@ -19,12 +19,17 @@ const db = admin.firestore();
 const algoliasearch = require("algoliasearch");
 
 // Set up Algolia.
-const algoliaClient = algoliasearch(functions.config().algolia.appid, functions.config().algolia.apikey);
+const algoliaClient = algoliasearch(
+  functions.config().algolia.appid,
+  functions.config().algolia.apikey
+);
 
 //const rp = require("request-promise");
 
 // Create a HTTP request cloud function.
-export const sendListingsToAlgolia = functions.region("europe-west1").https.onRequest(async (req, res) => {
+export const sendListingsToAlgolia = functions
+  .region("europe-west1")
+  .https.onRequest(async (req, res) => {
     // This array will contain all records to be indexed in Algolia.
     // A record does not need to necessarily contain all properties of the Firestore document,
     // only the relevant ones.
@@ -35,10 +40,57 @@ export const sendListingsToAlgolia = functions.region("europe-west1").https.onRe
     const querySnapshot = await db.collection("listings").get();
 
     querySnapshot.docs.forEach((doc) => {
-        const document = doc.data();
-        // Essentially, you want your records to contain any information that facilitates search,
-        // display, filtering, or relevance. Otherwise, you can leave it out.
-        const record = {
+      const document = doc.data();
+      // Essentially, you want your records to contain any information that facilitates search,
+      // display, filtering, or relevance. Otherwise, you can leave it out.
+      const record = {
+        objectID: doc.id,
+        date: document.date,
+        image: document.image,
+        description: document.description,
+        price: document.price,
+        stock: document.stock,
+        title: document.title,
+        vendor: document.vendor,
+      };
+      if (document.published) {
+        algoliaRecords.push(record);
+      }
+    });
+
+    // After all records are created, we save them to
+    collectionIndex.saveObjects(algoliaRecords, (_error: any, content: any) => {
+      res.status(200).send("Listings were indexed to Algolia successfully.");
+    });
+  });
+
+const runtimeOpts = {
+  timeoutSeconds: 540,
+  memory: "2GB" as "128MB" | "256MB" | "512MB" | "1GB" | "2GB",
+};
+
+export const sendListingsToAlgoliaWithLocation = functions
+  .region("europe-west1")
+  .runWith(runtimeOpts) // @ts-ignore
+  .https.onRequest(async (req: any, res: any) => {
+    // This array will contain all records to be indexed in Algolia.
+    // A record does not need to necessarily contain all properties of the Firestore document,
+    // only the relevant ones.
+    const algoliaRecords: any[] = [];
+    const collectionIndex = algoliaClient.initIndex("listings");
+    // Retrieve all documents from the COLLECTION collection.
+    const querySnapshot = await db.collection("listings").get();
+
+    querySnapshot.docs.forEach((doc) => {
+      const document = doc.data();
+      // Essentially, you want your records to contain any information that facilitates search,
+      // display, filtering, or relevance. Otherwise, you can leave it out.
+      db.collection("vendors")
+        .doc(document.vendor)
+        .get()
+        .then(async (vendorDoc) => {
+          const vendor = vendorDoc.data();
+          const record = {
             objectID: doc.id,
             date: document.date,
             image: document.image,
@@ -47,67 +99,20 @@ export const sendListingsToAlgolia = functions.region("europe-west1").https.onRe
             stock: document.stock,
             title: document.title,
             vendor: document.vendor,
-        };
-        if (document.published) {
+            _geoloc: vendor?._geoloc,
+          };
+          if (document.published) {
             algoliaRecords.push(record);
-        }
+          }
+        })
+        .catch((err) => console.log(err));
     });
 
     // After all records are created, we save them to
     collectionIndex.saveObjects(algoliaRecords, (_error: any, content: any) => {
-        res.status(200).send("Listings were indexed to Algolia successfully.");
+      res.status(200).send("Listings were indexed to Algolia successfully.");
     });
-});
-
-const runtimeOpts = {
-    timeoutSeconds: 540,
-    memory: "2GB" as "128MB" | "256MB" | "512MB" | "1GB" | "2GB",
-};
-
-export const sendListingsToAlgoliaWithLocation = functions
-    .region("europe-west1")
-    .runWith(runtimeOpts) // @ts-ignore
-    .https.onRequest(async (req: any, res: any) => {
-        // This array will contain all records to be indexed in Algolia.
-        // A record does not need to necessarily contain all properties of the Firestore document,
-        // only the relevant ones.
-        const algoliaRecords: any[] = [];
-        const collectionIndex = algoliaClient.initIndex("listings");
-        // Retrieve all documents from the COLLECTION collection.
-        const querySnapshot = await db.collection("listings").get();
-
-        querySnapshot.docs.forEach((doc) => {
-            const document = doc.data();
-            // Essentially, you want your records to contain any information that facilitates search,
-            // display, filtering, or relevance. Otherwise, you can leave it out.
-            db.collection("vendors")
-                .doc(document.vendor)
-                .get()
-                .then(async (vendorDoc) => {
-                    const vendor = vendorDoc.data();
-                    const record = {
-                        objectID: doc.id,
-                        date: document.date,
-                        image: document.image,
-                        description: document.description,
-                        price: document.price,
-                        stock: document.stock,
-                        title: document.title,
-                        vendor: document.vendor,
-                        _geoloc: vendor?._geoloc,
-                    };
-                    if (document.published) {
-                        algoliaRecords.push(record);
-                    }
-                })
-                .catch((err) => console.log(err));
-        });
-
-        // After all records are created, we save them to
-        collectionIndex.saveObjects(algoliaRecords, (_error: any, content: any) => {
-            res.status(200).send("Listings were indexed to Algolia successfully.");
-        });
-    });
+  });
 
 // export const updateListingLocation = functions
 //   .region("europe-west1")
@@ -157,7 +162,9 @@ export const sendListingsToAlgoliaWithLocation = functions
 //     });
 //   });
 
-export const sendVendorsToAlgolia = functions.region("europe-west1").https.onRequest(async (req, res) => {
+export const sendVendorsToAlgolia = functions
+  .region("europe-west1")
+  .https.onRequest(async (req, res) => {
     // This array will contain all records to be indexed in Algolia.
     // A record does not need to necessarily contain all properties of the Firestore document,
     // only the relevant ones.
@@ -168,145 +175,145 @@ export const sendVendorsToAlgolia = functions.region("europe-west1").https.onReq
     const querySnapshot = await db.collection("vendors").get();
 
     querySnapshot.docs.forEach((doc) => {
-        const document = doc.data();
-        // Essentially, you want your records to contain any information that facilitates search,
-        // display, filtering, or relevance. Otherwise, you can leave it out.
-        const record = {
-            objectID: doc.id,
-            address: document.address,
-            bank: document.bank,
-            company: document.company,
-            country: document.country,
-            delivery: document.delivery,
-            delivery_costs: document.delivery_costs,
-            delivery_note: document.delivery_note,
-            description: document.description,
-            email: document.email,
-            image: document.image,
-            phone: document.phone,
-            registered: document.registered,
-            regno: document.regno,
-            title: document.title,
-            _geoloc: document._geoloc,
-        };
+      const document = doc.data();
+      // Essentially, you want your records to contain any information that facilitates search,
+      // display, filtering, or relevance. Otherwise, you can leave it out.
+      const record = {
+        objectID: doc.id,
+        address: document.address,
+        bank: document.bank,
+        company: document.company,
+        country: document.country,
+        delivery: document.delivery,
+        delivery_costs: document.delivery_costs,
+        delivery_note: document.delivery_note,
+        description: document.description,
+        email: document.email,
+        image: document.image,
+        phone: document.phone,
+        registered: document.registered,
+        regno: document.regno,
+        title: document.title,
+        _geoloc: document._geoloc,
+      };
 
-        algoliaRecords.push(record);
+      algoliaRecords.push(record);
     });
 
     // After all records are created, we save them to
     collectionIndex.saveObjects(algoliaRecords, (_error: any, content: any) => {
-        res.status(200).send("Vendors were indexed to Algolia successfully.");
+      res.status(200).send("Vendors were indexed to Algolia successfully.");
     });
-});
+  });
 
 export const vendorOnCreate = functions
-    .region("europe-west1")
-    .firestore.document("vendors/{uid}")
-    .onCreate(async (snapshot, context) => {
-        await saveVendorInAlgolia(snapshot);
-    });
+  .region("europe-west1")
+  .firestore.document("vendors/{uid}")
+  .onCreate(async (snapshot, context) => {
+    await saveVendorInAlgolia(snapshot);
+  });
 
 export const vendorOnUpdate = functions
-    .region("europe-west1")
-    .firestore.document("vendors/{uid}")
-    .onUpdate(async (change, context) => {
-        await updateVendorInAlgolia(change);
-    });
+  .region("europe-west1")
+  .firestore.document("vendors/{uid}")
+  .onUpdate(async (change, context) => {
+    await updateVendorInAlgolia(change);
+  });
 
 export const vendorOnDelete = functions
-    .region("europe-west1")
-    .firestore.document("vendors/{uid}")
-    .onDelete(async (snapshot, context) => {
-        await deleteVendorFromAlgolia(snapshot);
-    });
+  .region("europe-west1")
+  .firestore.document("vendors/{uid}")
+  .onDelete(async (snapshot, context) => {
+    await deleteVendorFromAlgolia(snapshot);
+  });
 
 export const listingOnCreate = functions
-    .region("europe-west1")
-    .firestore.document("listings/{uid}")
-    .onCreate(async (snapshot, context) => {
-        await saveListingInAlgolia(snapshot);
-    });
+  .region("europe-west1")
+  .firestore.document("listings/{uid}")
+  .onCreate(async (snapshot, context) => {
+    await saveListingInAlgolia(snapshot);
+  });
 
 export const listingOnUpdate = functions
-    .region("europe-west1")
-    .firestore.document("listings/{uid}")
-    .onUpdate(async (change, context) => {
-        await updateListingInAlgolia(change);
-    });
+  .region("europe-west1")
+  .firestore.document("listings/{uid}")
+  .onUpdate(async (change, context) => {
+    await updateListingInAlgolia(change);
+  });
 
 export const listingOnDelete = functions
-    .region("europe-west1")
-    .firestore.document("listings/{uid}")
-    .onDelete(async (snapshot, context) => {
-        await deleteListingFromAlgolia(snapshot);
-    });
+  .region("europe-west1")
+  .firestore.document("listings/{uid}")
+  .onDelete(async (snapshot, context) => {
+    await deleteListingFromAlgolia(snapshot);
+  });
 
 async function saveVendorInAlgolia(snapshot: any) {
-    const collectionIndex = algoliaClient.initIndex("vendors");
-    if (snapshot.exists) {
-        const record = snapshot.data();
-        if (record) {
-            record.objectID = snapshot.id;
-            await collectionIndex.saveObject(record);
-        }
+  const collectionIndex = algoliaClient.initIndex("vendors");
+  if (snapshot.exists) {
+    const record = snapshot.data();
+    if (record) {
+      record.objectID = snapshot.id;
+      await collectionIndex.saveObject(record);
     }
+  }
 }
 
 async function updateVendorInAlgolia(change: any) {
-    const docBeforeChange = change.before.data();
-    const docAfterChange = change.after.data();
-    if (docBeforeChange && docAfterChange) {
-        await saveVendorInAlgolia(change.after);
-    }
+  const docBeforeChange = change.before.data();
+  const docAfterChange = change.after.data();
+  if (docBeforeChange && docAfterChange) {
+    await saveVendorInAlgolia(change.after);
+  }
 }
 
 async function deleteVendorFromAlgolia(snapshot: any) {
-    const collectionIndex = algoliaClient.initIndex("vendors");
-    if (snapshot.exists) {
-        const objectID = snapshot.id;
-        await collectionIndex.deleteObject(objectID);
-    }
+  const collectionIndex = algoliaClient.initIndex("vendors");
+  if (snapshot.exists) {
+    const objectID = snapshot.id;
+    await collectionIndex.deleteObject(objectID);
+  }
 }
 
 async function saveListingInAlgolia(snapshot: any) {
-    const collectionIndex = algoliaClient.initIndex("listings");
-    if (snapshot.exists) {
-        const record = snapshot.data();
-        db.collection("vendors")
-            .doc(record.vendor)
-            .get()
-            .then(async (vendorDoc) => {
-                const vendor = vendorDoc.data();
-                if (record && record.published && vendor?._geoloc) {
-                    record.objectID = snapshot.id;
-                    record._geoloc = vendor?._geoloc;
-                    await collectionIndex.saveObject(record);
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    }
+  const collectionIndex = algoliaClient.initIndex("listings");
+  if (snapshot.exists) {
+    const record = snapshot.data();
+    db.collection("vendors")
+      .doc(record.vendor)
+      .get()
+      .then(async (vendorDoc) => {
+        const vendor = vendorDoc.data();
+        if (record && record.published && vendor?._geoloc) {
+          record.objectID = snapshot.id;
+          record._geoloc = vendor?._geoloc;
+          await collectionIndex.saveObject(record);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 }
 
 async function updateListingInAlgolia(change: any) {
-    const docBeforeChange = change.before.data();
-    const docAfterChange = change.after.data();
-    if (docBeforeChange && docAfterChange) {
-        if (!docAfterChange.published && docBeforeChange.published) {
-            await deleteListingFromAlgolia(change.after);
-        } else if (docAfterChange.published) {
-            await saveListingInAlgolia(change.after);
-        }
+  const docBeforeChange = change.before.data();
+  const docAfterChange = change.after.data();
+  if (docBeforeChange && docAfterChange) {
+    if (!docAfterChange.published && docBeforeChange.published) {
+      await deleteListingFromAlgolia(change.after);
+    } else if (docAfterChange.published) {
+      await saveListingInAlgolia(change.after);
     }
+  }
 }
 
 async function deleteListingFromAlgolia(snapshot: any) {
-    const collectionIndex = algoliaClient.initIndex("listings");
-    if (snapshot.exists) {
-        const objectID = snapshot.id;
-        await collectionIndex.deleteObject(objectID);
-    }
+  const collectionIndex = algoliaClient.initIndex("listings");
+  if (snapshot.exists) {
+    const objectID = snapshot.id;
+    await collectionIndex.deleteObject(objectID);
+  }
 }
 /*
  * The clearData function removes personal data from the RealTime Database,
@@ -314,37 +321,40 @@ async function deleteListingFromAlgolia(snapshot: any) {
  * returns a success message.
  */
 export const clearData = functions
-    .region("europe-west1")
-    .auth.user()
-    .onDelete(async (user) => {
-        const { uid } = user;
-        await deleteFirebaseData(uid);
-    });
+  .region("europe-west1")
+  .auth.user()
+  .onDelete(async (user) => {
+    const { uid } = user;
+    await deleteFirebaseData(uid);
+  });
 
 const deleteFirebaseData = async (uid: string) => {
-    if (uid) {
-        console.log("Deleting data for user: " + uid);
+  if (uid) {
+    console.log("Deleting data for user: " + uid);
 
-        await db.collection("vendors").doc(uid).delete();
+    await db.collection("vendors").doc(uid).delete();
 
-        const listings = await db.collection("listings").where("vendor", "==", uid).get();
-        const batch = db.batch();
+    const listings = await db
+      .collection("listings")
+      .where("vendor", "==", uid)
+      .get();
+    const batch = db.batch();
 
-        listings.forEach((doc) => {
-            console.log("Deleting " + doc.ref.id);
-            batch.delete(doc.ref);
-        });
+    listings.forEach((doc) => {
+      console.log("Deleting " + doc.ref.id);
+      batch.delete(doc.ref);
+    });
 
-        await batch.commit();
+    await batch.commit();
 
-        console.log("Deleted all listings for user: " + uid);
+    console.log("Deleted all listings for user: " + uid);
 
-        const bucket = admin.storage().bucket();
+    const bucket = admin.storage().bucket();
 
-        return bucket.deleteFiles({
-            prefix: `listings/${uid}`,
-        });
-    }
+    return bucket.deleteFiles({
+      prefix: `listings/${uid}`,
+    });
+  }
 };
 
 // New order e-mails
@@ -352,88 +362,100 @@ const sendgridemail = require("@sendgrid/mail");
 sendgridemail.setApiKey(functions.config().sendgrid.apikey);
 
 export const newOrderEmail = functions
-    .region("europe-west1")
-    .firestore.document("orders/{orderID}") // any write to this node will trigger email
-    .onCreate(async (event, context) => {
-        await event.ref.get().then((orderDoc) => {
-            const order = orderDoc.data();
-            let listings: string = "";
+  .region("europe-west1")
+  .firestore.document("orders/{orderID}") // any write to this node will trigger email
+  .onCreate(async (event, context) => {
+    await event.ref.get().then((orderDoc) => {
+      const order = orderDoc.data();
+      let listings: string = "";
 
-            order?.listings.map((listing: any) => {
-                listings = listings.concat(
-                    `
+      order?.listings.map((listing: any) => {
+        listings = listings.concat(
+          `
           ${listing.title} x ${listing.quantity} = € ${listing.sum} <br>
           `
-                );
-            });
-            const vendorMsg = {
-                to: order?.seller.email,
-                from: "noreply@pard.app",
-                subject: "New order " + order?.orderId,
-                templateId: "d-763ed1bdb26a48beb682e2604e8fdebf",
-                dynamic_template_data: {
-                    name: order?.buyer.firstName + " " + order?.buyer.lastName,
-                    address: `${order?.buyer?.address ? order?.buyer?.address + ", " : ""} ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
-                        order?.buyer?.county ? order?.buyer?.county + ", " : ""
-                    } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${order?.buyer?.country ? order?.buyer?.country + ", " : ""} ${
-                        order?.buyer?.postCode ? order?.buyer?.postCode : ""
-                    }`,
-                    comments: order?.buyer?.comments ? order?.buyer?.comments : "",
-                    email: order?.buyer?.email,
-                    phone: order?.buyer?.phone ? order?.buyer?.phone : "",
-                    sum: order?.sum,
-                    orderNumber: order?.orderId,
-                    listings: listings,
-                    delivery: order?.delivery && order?.seller.delivery_costs ? "🚚 € " + order?.seller.delivery_costs : "",
-                },
-            };
+        );
+      });
+      const vendorMsg = {
+        to: order?.seller.email,
+        from: "noreply@pard.app",
+        subject: "New order " + order?.orderId,
+        templateId: "d-763ed1bdb26a48beb682e2604e8fdebf",
+        dynamic_template_data: {
+          name: order?.buyer.firstName + " " + order?.buyer.lastName,
+          address: `${
+            order?.buyer?.address ? order?.buyer?.address + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.county ? order?.buyer?.county + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.country ? order?.buyer?.country + ", " : ""
+          } ${order?.buyer?.postCode ? order?.buyer?.postCode : ""}`,
+          comments: order?.buyer?.comments ? order?.buyer?.comments : "",
+          email: order?.buyer?.email,
+          phone: order?.buyer?.phone ? order?.buyer?.phone : "",
+          sum: order?.sum,
+          orderNumber: order?.orderId,
+          listings: listings,
+          delivery:
+            order?.delivery && order?.seller.delivery_costs
+              ? "🚚 € " + order?.seller.delivery_costs
+              : "",
+        },
+      };
 
-            const buyerMsg = {
-                to: order?.buyer.email,
-                from: "noreply@pard.app",
-                subject: "Order " + order?.orderId + " received",
-                templateId: "d-148343972117401ba415ad9eab113368",
-                dynamic_template_data: {
-                    name: order?.buyer.firstName + " " + order?.buyer.lastName,
-                    address: `${order?.buyer?.address ? order?.buyer?.address + ", " : ""} ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
-                        order?.buyer?.county ? order?.buyer?.county + ", " : ""
-                    } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${order?.buyer?.country ? order?.buyer?.country + ", " : ""} ${
-                        order?.buyer?.postCode ? order?.buyer?.postCode : ""
-                    }`,
-                    comments: order?.buyer.comments ? order?.buyer.comments : "",
-                    email: order?.buyer.email,
-                    phone: order?.buyer.phone ? order?.buyer.phone : "",
-                    sum: order?.sum,
-                    orderNumber: order?.orderId,
-                    vendorAddress: order?.seller.address ? order?.seller.address : "",
-                    vendorBank: order?.seller.bank ? order?.seller.bank : "",
-                    vendorCity: order?.seller.city ? order?.seller.city : "",
-                    vendorCountry: order?.seller.country ? order?.seller.country : "",
-                    vendorPhone: order?.seller.phone ? order?.seller.phone : "",
-                    vendorReg: order?.seller.regno ? order?.seller.regno : "",
-                    vendorTitle: order?.seller.title,
-                    vendorCompany: order?.seller.company ? order?.seller.company : "",
-                    vendorEmail: order?.seller.email,
-                    listings: listings,
-                    delivery: order?.delivery && order?.seller.delivery_costs ? "🚚 € " + order?.seller.delivery_costs : "",
-                },
-            };
+      const buyerMsg = {
+        to: order?.buyer.email,
+        from: "noreply@pard.app",
+        subject: "Order " + order?.orderId + " received",
+        templateId: "d-148343972117401ba415ad9eab113368",
+        dynamic_template_data: {
+          name: order?.buyer.firstName + " " + order?.buyer.lastName,
+          address: `${
+            order?.buyer?.address ? order?.buyer?.address + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.county ? order?.buyer?.county + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.country ? order?.buyer?.country + ", " : ""
+          } ${order?.buyer?.postCode ? order?.buyer?.postCode : ""}`,
+          comments: order?.buyer.comments ? order?.buyer.comments : "",
+          email: order?.buyer.email,
+          phone: order?.buyer.phone ? order?.buyer.phone : "",
+          sum: order?.sum,
+          orderNumber: order?.orderId,
+          vendorAddress: order?.seller.address ? order?.seller.address : "",
+          vendorBank: order?.seller.bank ? order?.seller.bank : "",
+          vendorCity: order?.seller.city ? order?.seller.city : "",
+          vendorCountry: order?.seller.country ? order?.seller.country : "",
+          vendorPhone: order?.seller.phone ? order?.seller.phone : "",
+          vendorReg: order?.seller.regno ? order?.seller.regno : "",
+          vendorTitle: order?.seller.title,
+          vendorCompany: order?.seller.company ? order?.seller.company : "",
+          vendorEmail: order?.seller.email,
+          listings: listings,
+          delivery:
+            order?.delivery && order?.seller.delivery_costs
+              ? "🚚 € " + order?.seller.delivery_costs
+              : "",
+        },
+      };
 
-            sendgridemail
-                .send(vendorMsg)
-                .then(() => {
-                    console.log("New order e-mail sent to vendor: " + order?.seller.email);
-                })
-                .catch((err: any) => console.log(err));
+      sendgridemail
+        .send(vendorMsg)
+        .then(() => {
+          console.log(
+            "New order e-mail sent to vendor: " + order?.seller.email
+          );
+        })
+        .catch((err: any) => console.log(err));
 
-            sendgridemail
-                .send(buyerMsg)
-                .then(() => {
-                    console.log("New order e-mail sent to buyer: " + order?.buyer.email);
-                })
-                .catch((err: any) => console.log(err));
-        });
+      sendgridemail
+        .send(buyerMsg)
+        .then(() => {
+          console.log("New order e-mail sent to buyer: " + order?.buyer.email);
+        })
+        .catch((err: any) => console.log(err));
     });
+  });
 
 /* Placing orders */
 // export const placeOrder = functions
@@ -572,260 +594,316 @@ export const newOrderEmail = functions
 //       });
 //   });
 
-export const placeOrder = functions.region("europe-west1").https.onCall(async ({ orders, delivery, invoice, buyer }, context) => {
+export const placeOrder = functions
+  .region("europe-west1")
+  .https.onCall(async ({ orders, delivery, invoice, buyer }, context) => {
     const promises: Promise<DocumentSnapshot>[] = [];
 
     orders.forEach((order: Order) => {
-        const vendorDoc = db.collection("vendors").doc(order.vendor).get();
+      const vendorDoc = db.collection("vendors").doc(order.vendor).get();
 
-        promises.push(vendorDoc);
+      promises.push(vendorDoc);
 
-        order.listings.forEach((listing: any) => {
-            const listingDoc = db.collection("listings").doc(listing.id).get();
-            promises.push(listingDoc);
-        });
+      order.listings.forEach((listing: any) => {
+        const listingDoc = db.collection("listings").doc(listing.id).get();
+        promises.push(listingDoc);
+      });
     });
 
     const snapshots: DocumentSnapshot[] = await Promise.all(promises);
 
     const finalOrder: FinalOrder = orders.reduce(
-        (accumulator: FinalOrder, order: Order) => {
-            const vendor = snapshots.find(({ id }) => id === order.vendor);
-            if (!vendor) return new Error(`Could not find vendor ${order.vendor}`);
-            const vendorData: VendorModel = vendor.data() as VendorModel;
+      (accumulator: FinalOrder, order: Order) => {
+        const vendor = snapshots.find(({ id }) => id === order.vendor);
+        if (!vendor) return new Error(`Could not find vendor ${order.vendor}`);
+        const vendorData: VendorModel = vendor.data() as VendorModel;
 
-            let deliveryCosts: number = 0;
-            if (vendorData.delivery && vendorData.delivery_costs) {
-                deliveryCosts = vendorData.delivery_costs;
-            }
+        let deliveryCosts: number = 0;
+        if (vendorData.delivery && vendorData.delivery_costs) {
+          deliveryCosts = vendorData.delivery_costs;
+        }
 
-            const processedListings = order.listings.map((listing: any) => {
-                const item = snapshots.find((document: any) => document.id === listing.id);
-                if (!item) return new Error(`Could not find item ${listing.title}`);
-                const itemData = item.data() as any;
-                const itemCost = itemData.price * listing.quantity;
+        const processedListings = order.listings.map((listing: any) => {
+          const item = snapshots.find(
+            (document: any) => document.id === listing.id
+          );
+          if (!item) return new Error(`Could not find item ${listing.title}`);
+          const itemData = item.data() as any;
+          const itemCost = itemData.price * listing.quantity;
 
-                return {
-                    id: listing.id,
-                    quantity: listing.quantity,
-                    sum: itemCost,
-                    title: itemData.title,
-                    image: itemData.image,
-                    price: itemData.price,
-                    description: itemData.description,
-                };
-            });
+          return {
+            id: listing.id,
+            quantity: listing.quantity,
+            sum: itemCost,
+            title: itemData.title,
+            image: itemData.image,
+            price: itemData.price,
+            description: itemData.description,
+          };
+        });
 
-            // @TODO - check how to correctly add numbers with decimals (js quirks)
-            const listingsCost = processedListings.reduce((i: number, j: any) => i + j.sum, 0);
+        // @TODO - check how to correctly add numbers with decimals (js quirks)
+        const listingsCost = processedListings.reduce(
+          (i: number, j: any) => i + j.sum,
+          0
+        );
 
-            const sum = delivery ? listingsCost + deliveryCosts : listingsCost;
+        const sum = delivery ? listingsCost + deliveryCosts : listingsCost;
 
-            const orderId = generateUniqueOrderId(vendorData, buyer);
+        const orderId = generateUniqueOrderId(vendorData, buyer);
 
-            return {
-                ordersPriceSum: accumulator.ordersPriceSum + sum,
-                orders: [
-                    ...accumulator.orders,
-                    { vendor: order.vendor, listings: processedListings, sum, buyer, seller: vendorData, delivery, orderId, invoice },
-                ],
-            } as FinalOrder;
-        },
-        {
-            ordersPriceSum: 0,
-            orders: [],
-        } as FinalOrder
+        return {
+          ordersPriceSum: accumulator.ordersPriceSum + sum,
+          orders: [
+            ...accumulator.orders,
+            {
+              vendor: order.vendor,
+              listings: processedListings,
+              sum,
+              buyer,
+              seller: vendorData,
+              delivery,
+              orderId,
+              invoice,
+            },
+          ],
+        } as FinalOrder;
+      },
+      {
+        ordersPriceSum: 0,
+        orders: [],
+      } as FinalOrder
     );
 
     try {
-        await createPaymentAndAddToDb(finalOrder);
-        return finalOrder;
+      await createPaymentAndAddToDb(finalOrder);
+      return finalOrder;
     } catch (error) {
-        return { error };
+      return { error };
     }
-});
+  });
 
 const createPaymentAndAddToDb = async (finalOrder: FinalOrder) => {
-    const batch = db.batch();
-    const currency: string = "eur";
-    const newPaymentIntentGroup = db.collection("paymentIntents").doc();
+  const batch = db.batch();
+  const currency: string = "eur";
+  const currentDate = Date.now();
+  const newPaymentIntentGroup = db.collection("paymentIntents").doc();
 
-    const paymentIntent = await stripe.paymentIntents.create({
-        payment_method_types: ["card"],
-        amount: finalOrder.ordersPriceSum * 100, // convert to cents
-        currency,
-        application_fee_amount: 20, // euro cents
-        confirm: false,
-        transfer_group: newPaymentIntentGroup.id,
+  const paymentIntent = await stripe.paymentIntents.create({
+    payment_method_types: ["card"],
+    amount: finalOrder.ordersPriceSum * 100, // convert to cents
+    currency,
+    application_fee_amount: 20, // euro cents
+    confirm: false,
+    transfer_group: newPaymentIntentGroup.id,
+  });
+
+  for (const processedOrder of finalOrder.orders) {
+    const newTransfer = db.collection("transfers").doc();
+
+    batch.set(newTransfer, {
+      amount: processedOrder.sum,
+      currency,
+      destination: processedOrder.seller.stripe_id,
+      transfer_group: newPaymentIntentGroup.id,
+      date: currentDate,
     });
 
-    for (const processedOrder of finalOrder.orders) {
-        const transfer = await stripe.transfers.create({
-            amount: processedOrder.sum,
-            currency,
-            destination: processedOrder.seller.stripe_id,
-            transfer_group: newPaymentIntentGroup.id,
-        });
-        // add order to firebase
-        const newOrder = db.collection("orders").doc();
-        // add id to order we return in FE
-        processedOrder.id = newOrder.id;
-        processedOrder.transfer = transfer;
+    // add order to firebase
+    const newOrder = db.collection("orders").doc();
+    // add id to order we return in FE
+    processedOrder.id = newOrder.id;
+    processedOrder.transfer = newTransfer.id;
 
-        // add the whole paymentIntent obj firebase
-        batch.set(newOrder, {
-            id: newOrder.id,
-            status: "New",
-            date: Date.now(),
-            completed: false,
-            ...processedOrder,
-            paymentStatus: paymentIntent.status,
-        });
-    }
-
-    batch.set(newPaymentIntentGroup, {
-        ...finalOrder,
-        paymentIntent,
+    // add the whole paymentIntent obj firebase
+    batch.set(newOrder, {
+      id: newOrder.id,
+      status: "New",
+      date: currentDate,
+      completed: false,
+      ...processedOrder,
+      paymentStatus: paymentIntent.status,
     });
+  }
 
-    await batch.commit();
+  batch.set(newPaymentIntentGroup, {
+    ...finalOrder,
+    paymentIntent,
+  });
+
+  await batch.commit();
 };
 
 const generateUniqueOrderId = (vendor: any, buyer: any): string =>
-    `PARD-${vendor.title.slice(0, 4).trim().toUpperCase()}-${buyer.firstName.slice(0, 3).trim().toUpperCase()}-${Math.floor(Math.random() * 100000)}`;
+  `PARD-${vendor.title
+    .slice(0, 4)
+    .trim()
+    .toUpperCase()}-${buyer.firstName
+    .slice(0, 3)
+    .trim()
+    .toUpperCase()}-${Math.floor(Math.random() * 100000)}`;
 
-export const updateOrderPaymentStatus = functions.region("europe-west1").https.onCall(async ({ id, paymentStatus }, context) => {
+export const updateOrderPaymentStatus = functions
+  .region("europe-west1")
+  .https.onCall(async ({ id, paymentStatus }, context) => {
     return await db.collection("orders").doc(id).update({
-        paymentStatus,
+      paymentStatus,
     });
-});
+  });
+
+/* Transfer money to vendors (payouts) 
+1. Loop through orders, sort by date - if older than x, then proceed
+2. 
+*/
+
+// const transfer = await stripe.transfers.create({
+//     amount: processedOrder.sum,
+//     currency,
+//     destination: processedOrder.seller.stripe_id,
+//     transfer_group: newPaymentIntentGroup.id,
+// });
 
 export const orderOnUpdate = functions
-    .region("europe-west1")
-    .firestore.document("orders/{orderId}")
-    .onUpdate(async (change, context) => {
-        const order = change.after.data();
+  .region("europe-west1")
+  .firestore.document("orders/{orderId}")
+  .onUpdate(async (change, context) => {
+    const order = change.after.data();
 
-        if (order && order.status == "Confirmed") {
-            // Send e-mail
-            let listings: string = "";
+    if (order && order.status == "Confirmed") {
+      // Send e-mail
+      let listings: string = "";
 
-            order?.listings.map((listing: any) => {
-                listings = listings.concat(
-                    `
+      order?.listings.map((listing: any) => {
+        listings = listings.concat(
+          `
           ${listing.title} x ${listing.quantity} = € ${listing.sum} <br>
           `
-                );
-            });
+        );
+      });
 
-            const buyerMsg = {
-                to: order?.buyer.email,
-                from: "noreply@pard.app",
-                subject: "Order " + order?.orderId + " confirmed",
-                templateId: "d-41708a0f1ed840c2b76701bdaba3bf0f",
-                dynamic_template_data: {
-                    name: order?.buyer.firstName + " " + order?.buyer.lastName,
-                    address: `${order?.buyer?.address ? order?.buyer?.address + ", " : ""} ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
-                        order?.buyer?.county ? order?.buyer?.county + ", " : ""
-                    } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${order?.buyer?.country ? order?.buyer?.country + ", " : ""} ${
-                        order?.buyer?.postCode ? order?.buyer?.postCode : ""
-                    }`,
-                    comments: order?.buyer.comments ? order?.buyer.comments : "",
-                    email: order?.buyer.email,
-                    phone: order?.buyer.phone ? order?.buyer.phone : "",
-                    sum: order?.sum,
-                    orderNumber: order?.orderId,
-                    vendorAddress: order?.seller.address ? order?.seller.address : "",
-                    vendorBank: order?.seller.bank ? order?.seller.bank : "",
-                    vendorCity: order?.seller.city ? order?.seller.city : "",
-                    vendorCountry: order?.seller.country ? order?.seller.country : "",
-                    vendorPhone: order?.seller.phone ? order?.seller.phone : "",
-                    vendorReg: order?.seller.regno ? order?.seller.regno : "",
-                    vendorTitle: order?.seller.title,
-                    vendorCompany: order?.seller.company ? order?.seller.company : "",
-                    vendorEmail: order?.seller.email,
-                    listings: listings,
-                    delivery: order?.delivery && order?.seller.delivery_costs ? "🚚 € " + order?.seller.delivery_costs : "",
-                },
-            };
+      const buyerMsg = {
+        to: order?.buyer.email,
+        from: "noreply@pard.app",
+        subject: "Order " + order?.orderId + " confirmed",
+        templateId: "d-41708a0f1ed840c2b76701bdaba3bf0f",
+        dynamic_template_data: {
+          name: order?.buyer.firstName + " " + order?.buyer.lastName,
+          address: `${
+            order?.buyer?.address ? order?.buyer?.address + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.county ? order?.buyer?.county + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.country ? order?.buyer?.country + ", " : ""
+          } ${order?.buyer?.postCode ? order?.buyer?.postCode : ""}`,
+          comments: order?.buyer.comments ? order?.buyer.comments : "",
+          email: order?.buyer.email,
+          phone: order?.buyer.phone ? order?.buyer.phone : "",
+          sum: order?.sum,
+          orderNumber: order?.orderId,
+          vendorAddress: order?.seller.address ? order?.seller.address : "",
+          vendorBank: order?.seller.bank ? order?.seller.bank : "",
+          vendorCity: order?.seller.city ? order?.seller.city : "",
+          vendorCountry: order?.seller.country ? order?.seller.country : "",
+          vendorPhone: order?.seller.phone ? order?.seller.phone : "",
+          vendorReg: order?.seller.regno ? order?.seller.regno : "",
+          vendorTitle: order?.seller.title,
+          vendorCompany: order?.seller.company ? order?.seller.company : "",
+          vendorEmail: order?.seller.email,
+          listings: listings,
+          delivery:
+            order?.delivery && order?.seller.delivery_costs
+              ? "🚚 € " + order?.seller.delivery_costs
+              : "",
+        },
+      };
 
-            sendgridemail
-                .send(buyerMsg)
-                .then(() => {
-                    console.log("New order e-mail sent to buyer: " + order?.buyer.email);
-                })
-                .catch((err: any) => console.log(err));
-            // Update stock
-        } else if (order && order.status == "Rejected") {
-            // Send e-mail
-            let listings: string = "";
+      sendgridemail
+        .send(buyerMsg)
+        .then(() => {
+          console.log("New order e-mail sent to buyer: " + order?.buyer.email);
+        })
+        .catch((err: any) => console.log(err));
+      // Update stock
+    } else if (order && order.status == "Rejected") {
+      // Send e-mail
+      let listings: string = "";
 
-            order?.listings.map((listing: any) => {
-                listings = listings.concat(
-                    `
+      order?.listings.map((listing: any) => {
+        listings = listings.concat(
+          `
           ${listing.title} x ${listing.quantity} = € ${listing.sum} <br>
           `
-                );
-            });
+        );
+      });
 
-            const buyerMsg = {
-                to: order?.buyer.email,
-                from: "noreply@pard.app",
-                subject: "Order " + order?.orderId + " rejected",
-                templateId: "d-231ef23c9186405990081dfa0bfd8c9d",
-                dynamic_template_data: {
-                    name: order?.buyer.firstName + " " + order?.buyer.lastName,
-                    address: `${order?.buyer?.address ? order?.buyer?.address + ", " : ""} ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
-                        order?.buyer?.county ? order?.buyer?.county + ", " : ""
-                    } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${order?.buyer?.country ? order?.buyer?.country + ", " : ""} ${
-                        order?.buyer?.postCode ? order?.buyer?.postCode : ""
-                    }`,
-                    comments: order?.buyer.comments ? order?.buyer.comments : "",
-                    email: order?.buyer.email,
-                    phone: order?.buyer.phone ? order?.buyer.phone : "",
-                    sum: order?.sum,
-                    orderNumber: order?.orderId,
-                    vendorAddress: order?.seller.address ? order?.seller.address : "",
-                    vendorBank: order?.seller.bank ? order?.seller.bank : "",
-                    vendorCity: order?.seller.city ? order?.seller.city : "",
-                    vendorCountry: order?.seller.country ? order?.seller.country : "",
-                    vendorPhone: order?.seller.phone ? order?.seller.phone : "",
-                    vendorReg: order?.seller.regno ? order?.seller.regno : "",
-                    vendorTitle: order?.seller.title,
-                    vendorCompany: order?.seller.company ? order?.seller.company : "",
-                    vendorEmail: order?.seller.email,
-                    listings: listings,
-                    delivery: order?.delivery && order?.seller.delivery_costs ? "🚚 € " + order?.seller.delivery_costs : "",
-                },
-            };
+      const buyerMsg = {
+        to: order?.buyer.email,
+        from: "noreply@pard.app",
+        subject: "Order " + order?.orderId + " rejected",
+        templateId: "d-231ef23c9186405990081dfa0bfd8c9d",
+        dynamic_template_data: {
+          name: order?.buyer.firstName + " " + order?.buyer.lastName,
+          address: `${
+            order?.buyer?.address ? order?.buyer?.address + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.county ? order?.buyer?.county + ", " : ""
+          } ${order?.buyer?.city ? order?.buyer?.city + ", " : ""} ${
+            order?.buyer?.country ? order?.buyer?.country + ", " : ""
+          } ${order?.buyer?.postCode ? order?.buyer?.postCode : ""}`,
+          comments: order?.buyer.comments ? order?.buyer.comments : "",
+          email: order?.buyer.email,
+          phone: order?.buyer.phone ? order?.buyer.phone : "",
+          sum: order?.sum,
+          orderNumber: order?.orderId,
+          vendorAddress: order?.seller.address ? order?.seller.address : "",
+          vendorBank: order?.seller.bank ? order?.seller.bank : "",
+          vendorCity: order?.seller.city ? order?.seller.city : "",
+          vendorCountry: order?.seller.country ? order?.seller.country : "",
+          vendorPhone: order?.seller.phone ? order?.seller.phone : "",
+          vendorReg: order?.seller.regno ? order?.seller.regno : "",
+          vendorTitle: order?.seller.title,
+          vendorCompany: order?.seller.company ? order?.seller.company : "",
+          vendorEmail: order?.seller.email,
+          listings: listings,
+          delivery:
+            order?.delivery && order?.seller.delivery_costs
+              ? "🚚 € " + order?.seller.delivery_costs
+              : "",
+        },
+      };
 
-            sendgridemail
-                .send(buyerMsg)
-                .then(() => {
-                    console.log("Order rejected e-mail sent to buyer: " + order?.buyer.email);
-                })
-                .catch((err: any) => console.log(err));
-            // Update stock
-        }
-    });
+      sendgridemail
+        .send(buyerMsg)
+        .then(() => {
+          console.log(
+            "Order rejected e-mail sent to buyer: " + order?.buyer.email
+          );
+        })
+        .catch((err: any) => console.log(err));
+      // Update stock
+    }
+  });
 
 // Connect with Stripe
 export const connectWithStripe = functions
-    .region("europe-west1")
-    .runWith(runtimeOpts) // @ts-ignore
-    .https.onRequest(async (req: any, res: any) => {
-        const vendor = req.query.state;
-        const code = req.query.code;
-        //const scope = req.query.scope;
+  .region("europe-west1")
+  .runWith(runtimeOpts) // @ts-ignore
+  .https.onRequest(async (req: any, res: any) => {
+    const vendor = req.query.state;
+    const code = req.query.code;
+    //const scope = req.query.scope;
 
-        const response = await stripe.oauth.token({
-            grant_type: "authorization_code",
-            code: code,
-        });
-
-        if (response && response.stripe_user_id) {
-            await db.collection("vendors").doc(vendor).update({ stripe_id: response.stripe_user_id });
-
-            res.redirect("https://pard.app");
-        }
+    const response = await stripe.oauth.token({
+      grant_type: "authorization_code",
+      code: code,
     });
+
+    if (response && response.stripe_user_id) {
+      await db
+        .collection("vendors")
+        .doc(vendor)
+        .update({ stripe_id: response.stripe_user_id });
+
+      res.redirect("https://pard.app");
+    }
+  });
