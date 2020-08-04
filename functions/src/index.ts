@@ -691,6 +691,14 @@ export const placeOrder = functions
     }
   });
 
+export const updateOrderPaymentStatus = functions
+  .region("europe-west1")
+  .https.onCall(async ({ id, paymentStatus }, context) => {
+    return await db.collection("orders").doc(id).update({
+      paymentStatus,
+    });
+  });
+
 const createPaymentAndAddToDb = async (finalOrder: FinalOrder, buyer: any) => {
   const batch = db.batch();
   const currency: string = "eur";
@@ -708,9 +716,11 @@ const createPaymentAndAddToDb = async (finalOrder: FinalOrder, buyer: any) => {
   });
 
   for (const processedOrder of finalOrder.orders) {
-    const newTransfer = db.collection("transfers").doc();
+    //const newTransfer = db.collection("transfers").doc();
+    const transfersRef = db.collection("transfers");
+    const transferId = transfersRef.doc().id;
 
-    batch.set(newTransfer, {
+    batch.set(transfersRef.doc(transferId), {
       amount: processedOrder.sum * 100 - FEE,
       currency,
       destination: processedOrder.seller.stripe_id,
@@ -723,7 +733,7 @@ const createPaymentAndAddToDb = async (finalOrder: FinalOrder, buyer: any) => {
     const newOrder = db.collection("orders").doc();
     // add id to order we return in FE
     processedOrder.id = newOrder.id;
-    processedOrder.transfer = newTransfer.id;
+    processedOrder.transfer = transferId;
 
     // add the whole paymentIntent obj firebase
     batch.set(newOrder, {
@@ -744,14 +754,6 @@ const createPaymentAndAddToDb = async (finalOrder: FinalOrder, buyer: any) => {
   await batch.commit();
   return paymentIntent;
 };
-
-export const updateOrderPaymentStatus = functions
-  .region("europe-west1")
-  .https.onCall(async ({ id, paymentStatus }, context) => {
-    return await db.collection("orders").doc(id).update({
-      paymentStatus,
-    });
-  });
 
 const generateUniqueOrderId = (vendor: any, buyer: any): string => {
   return `PARD-${vendor.title
