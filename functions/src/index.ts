@@ -2,10 +2,62 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import Stripe from "stripe";
-import { VendorModel } from "../../src/app/@features/models/vendor.model";
-import { Order, FinalOrder } from "./models";
-import { DocumentSnapshot } from "firebase-functions/lib/providers/firestore";
+//import { VendorModel } from "../../src/app/@features/models/vendor.model";
+//import { Order, FinalOrder } from "../models";
+//import { DocumentSnapshot } from "firebase-functions/lib/providers/firestore";
 const secret = functions.config().stripe.test_secret_key;
+
+interface ProcessedListing {
+  id: string;
+  quantity: number;
+  sum: number;
+  title: string;
+  image: string;
+  price: number;
+  description: string;
+}
+interface Order {
+  id?: string;
+  paymentIntent?: any;
+  transfer?: any;
+  vendor: string;
+  listings: ProcessedListing[];
+  sum: number;
+  buyer: any;
+  seller: any;
+  delivery: boolean;
+  orderId: string;
+  invoice: any;
+}
+interface FinalOrder {
+  ordersPriceSum: number;
+  orders: Order[];
+  error?: string;
+}
+
+interface VendorModel {
+  address?: string;
+  bank?: string;
+  city?: string;
+  company?: string;
+  country?: string;
+  description?: string;
+  email?: string;
+  image?: string;
+  phone?: string;
+  registered?: string;
+  regno?: string;
+  delivery?: boolean;
+  /* tslint:disable */
+  delivery_costs?: number;
+  delivery_note?: string;
+  title?: string;
+  _geoloc?: {
+    lat: number;
+    lng: number;
+  };
+  stripe_id?: string;
+}
 
 // Set up Stripe
 const stripe = new Stripe(secret, {
@@ -597,7 +649,7 @@ export const newOrderEmail = functions
 export const placeOrder = functions
   .region("europe-west1")
   .https.onCall(async ({ orders, delivery, invoice, buyer }, context) => {
-    const promises: Promise<DocumentSnapshot>[] = [];
+    const promises: Promise<any>[] = [];
     try {
       orders.forEach((order: Order) => {
         const vendorDoc = db.collection("vendors").doc(order.vendor).get();
@@ -613,7 +665,7 @@ export const placeOrder = functions
       return { error };
     }
 
-    const snapshots: DocumentSnapshot[] = await Promise.all(promises);
+    const snapshots: any[] = await Promise.all(promises);
 
     try {
       const finalOrder: FinalOrder = orders.reduce(
@@ -673,30 +725,22 @@ export const placeOrder = functions
               },
             ],
           } as FinalOrder;
-        },
-        {
-          ordersPriceSum: 0,
-          orders: [],
-        } as FinalOrder
+        }
+        // {
+        //   ordersPriceSum: 0,
+        //   orders: [],
+        // } as FinalOrder
       );
 
       try {
-        await createPaymentAndAddToDb(finalOrder, buyer);
-        return finalOrder;
+        return await createPaymentAndAddToDb(finalOrder, buyer);
+        //return finalOrder;
       } catch (error) {
         return { error };
       }
     } catch (error) {
       return { error };
     }
-  });
-
-export const updateOrderPaymentStatus = functions
-  .region("europe-west1")
-  .https.onCall(async ({ id, paymentStatus }, context) => {
-    return await db.collection("orders").doc(id).update({
-      paymentStatus,
-    });
   });
 
 const createPaymentAndAddToDb = async (finalOrder: FinalOrder, buyer: any) => {
@@ -715,12 +759,17 @@ const createPaymentAndAddToDb = async (finalOrder: FinalOrder, buyer: any) => {
     transfer_group: newPaymentIntentGroup.id,
   });
 
-  for (const processedOrder of finalOrder.orders) {
-    //const newTransfer = db.collection("transfers").doc();
-    const transfersRef = db.collection("transfers");
-    const transferId = transfersRef.doc().id;
+  console.log("finalorder orders", finalOrder.orders);
 
-    batch.set(transfersRef.doc(transferId), {
+  for (const processedOrder of finalOrder.orders) {
+    console.log("processedOrder", processedOrder);
+    const newTransfer = db.collection("transfers").doc();
+    // const transfersRef = db.collection("transfers");
+    // const transferId = transfersRef.doc().id;
+
+    console.log(newTransfer.id);
+
+    batch.set(newTransfer, {
       amount: processedOrder.sum * 100 - FEE,
       currency,
       destination: processedOrder.seller.stripe_id,
@@ -733,7 +782,7 @@ const createPaymentAndAddToDb = async (finalOrder: FinalOrder, buyer: any) => {
     const newOrder = db.collection("orders").doc();
     // add id to order we return in FE
     processedOrder.id = newOrder.id;
-    processedOrder.transfer = transferId;
+    processedOrder.transfer = newTransfer.id;
 
     // add the whole paymentIntent obj firebase
     batch.set(newOrder, {
@@ -920,4 +969,12 @@ export const connectWithStripe = functions
 
       res.redirect("https://pard.app");
     }
+  });
+
+export const updateOrderPaymentStatus = functions
+  .region("europe-west1")
+  .https.onCall(async ({ id, paymentStatus }, context) => {
+    return await db.collection("orders").doc(id).update({
+      paymentStatus,
+    });
   });
