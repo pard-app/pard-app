@@ -725,11 +725,11 @@ export const placeOrder = functions
               },
             ],
           } as FinalOrder;
-        }
-        // {
-        //   ordersPriceSum: 0,
-        //   orders: [],
-        // } as FinalOrder
+        },
+        {
+          ordersPriceSum: 0,
+          orders: [],
+        } as FinalOrder
       );
 
       try {
