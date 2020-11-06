@@ -32,9 +32,7 @@
           />
         </div>
 
-        <h1 class="title">
-          {{ "CREATE_ACCOUNT" | translate }}
-        </h1>
+        <h1 class="title">{{ "CREATE_ACCOUNT" | translate }}</h1>
         <form [formGroup]="registerForm" (ngSubmit)="register()">
           <ion-list lines="full">
             <ion-item>
@@ -82,7 +80,7 @@
                 formControlName="description"
                 autocapitalize="sentences"
                 [placeholder]="'DESCRIPTION-PLACEHOLDER' | translate"
-                maxlength=300
+                maxlength="300"
               ></ion-input>
             </ion-item>
 
