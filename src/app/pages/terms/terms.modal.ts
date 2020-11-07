@@ -2,6 +2,7 @@ import { ModalController } from "@ionic/angular";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { HttpClient } from "@angular/common/http";
+import { Subscription } from "rxjs";
 
 @Component({
   selector: "app-terms",
@@ -11,7 +12,7 @@ import { HttpClient } from "@angular/common/http";
 export class TermsModal implements OnInit, OnDestroy {
   public terms: string = "en";
   public data: any;
-  private subscription: any;
+  private subscription: Subscription;
 
   constructor(
     private modalCtrl: ModalController,
@@ -37,8 +38,6 @@ export class TermsModal implements OnInit, OnDestroy {
     // Prepare the request
     return this.http.get(dataUrl, { responseType: "text" });
   }
-
-  ionViewWillEnter() {}
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
