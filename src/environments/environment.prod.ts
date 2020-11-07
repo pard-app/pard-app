@@ -12,4 +12,5 @@ export const environment = {
     gs: "gs://pard-app.appspot.com",
   },
   languages: ["en", "lt", "lv"],
+  version: "1.0.1",
 };
