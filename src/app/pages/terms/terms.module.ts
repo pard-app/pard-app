@@ -8,6 +8,7 @@ import { TermsPageRoutingModule } from "./terms-routing.module";
 
 import { TermsPage } from "./terms.page";
 import { TranslateModule } from "@ngx-translate/core";
+import { TermsModal } from "./terms.modal";
 
 @NgModule({
   imports: [
@@ -17,6 +18,6 @@ import { TranslateModule } from "@ngx-translate/core";
     TermsPageRoutingModule,
     TranslateModule,
   ],
-  declarations: [TermsPage],
+  declarations: [TermsPage, TermsModal],
 })
 export class TermsPageModule {}

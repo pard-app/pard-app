@@ -1,0 +1,17 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ "TERMS_OF_USE" | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding">
+  <div [innerHTML]="data"></div>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-title>
+      <ion-button (click)="dismiss()" expand="block" shape="round">
+        {{ 'CLOSE' | translate }}
+      </ion-button></ion-title
+    >
+  </ion-toolbar>
+</ion-footer>

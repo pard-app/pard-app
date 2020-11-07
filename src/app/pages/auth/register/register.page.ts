@@ -8,6 +8,8 @@ import { AngularFirestore } from "@angular/fire/firestore";
 import { AngularFireStorage } from "@angular/fire/storage";
 import { GoogleMap } from "@angular/google-maps";
 import { Geolocation } from "@capacitor/core";
+import { ModalController } from "@ionic/angular";
+import { TermsModal } from "../../terms/terms.modal";
 
 @Component({
   selector: "app-register",
@@ -40,7 +42,8 @@ export class RegisterPage implements OnInit {
     private afAuth: AngularFireAuth,
     private afStore: AngularFirestore,
     private afStorage: AngularFireStorage,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    public modalController: ModalController
   ) {
     this.registerForm = new FormGroup({
       email: new FormControl(
@@ -208,6 +211,15 @@ export class RegisterPage implements OnInit {
     this.marker.setMap(this.map.data.getMap());
     this.map.data.getMap().panTo(this.location);
     this.map.data.getMap().setCenter(this.location);
+  }
+
+  async presentModal() {
+    const modal = await this.modalController.create({
+      component: TermsModal,
+      cssClass: "terms-modal",
+    });
+
+    return await modal.present();
   }
 
   ngOnInit() {}
