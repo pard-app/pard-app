@@ -6,11 +6,12 @@ import { StatusBar } from "@ionic-native/status-bar/ngx";
 import { TranslateService } from "@ngx-translate/core";
 import { OverlaysService } from "./@features/services/overlays.service";
 import { Router, NavigationStart } from "@angular/router";
+import { environment } from "../environments/environment";
 
 @Component({
   selector: "app-root",
   templateUrl: "app.component.html",
-  styleUrls: ["app.component.scss"]
+  styleUrls: ["app.component.scss"],
 })
 export class AppComponent {
   @HostListener("window:popstate")
@@ -42,7 +43,15 @@ export class AppComponent {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
       this.translate.setDefaultLang("en");
-      this.translate.use(this.translate.getBrowserLang());
+      let language = this.translate.getBrowserLang();
+      if (
+        !environment.languages.find(
+          (supportedLanguage) => supportedLanguage == language
+        )
+      ) {
+        language = "en";
+      }
+      this.translate.use(language);
     });
   }
 }

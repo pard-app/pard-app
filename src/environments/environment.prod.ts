@@ -9,6 +9,7 @@ export const environment = {
     messagingSenderId: "146692342733",
     appId: "1:146692342733:web:79f9e4aa3ae4a36380fa84",
     measurementId: "G-2TXL7TZE0M",
-    gs: "gs://pard-app.appspot.com"
-  }
+    gs: "gs://pard-app.appspot.com",
+  },
+  languages: ["en", "lt", "lv"],
 };
