@@ -217,11 +217,15 @@
               ></ion-input>
             </ion-item>
 
-            <ion-item (click)="presentModal()">
+            <ion-item>
               <ion-label class="ion-text-wrap required"
                 >{{ "ACCEPT_TERMS" | translate}}</ion-label
               >
-              <ion-checkbox formControlName="terms" required></ion-checkbox>
+              <ion-checkbox
+                formControlName="terms"
+                (ionChange)="presentModal($event)"
+                required
+              ></ion-checkbox>
             </ion-item>
           </ion-list>
 

@@ -213,13 +213,15 @@ export class RegisterPage implements OnInit {
     this.map.data.getMap().setCenter(this.location);
   }
 
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: TermsModal,
-      cssClass: "terms-modal",
-    });
+  async presentModal(event) {
+    if (event && event.detail.checked) {
+      const modal = await this.modalController.create({
+        component: TermsModal,
+        cssClass: "terms-modal",
+      });
 
-    return await modal.present();
+      return await modal.present();
+    }
   }
 
   ngOnInit() {}
