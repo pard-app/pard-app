@@ -67,6 +67,15 @@
       {{ "LOG_OUT" | translate }}
     </ion-button>
 
-    <small>v. {{ version }}</small>
+    <div class="ion-text-center">
+      <ion-button fill="clear" [routerLink]="['/terms']">
+        {{ "TERMS_OF_USE" | translate }}
+      </ion-button>
+      <ion-button fill="clear" [routerLink]="['/privacy-policy']">
+        {{ "PRIVACY_POLICY" | translate }}
+      </ion-button>
+    </div>
+
+    <div class="ion-text-center"><small>v. {{ version }}</small></div>
   </ion-grid>
 </ion-content>
