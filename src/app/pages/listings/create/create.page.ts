@@ -26,7 +26,7 @@ export class CreatePage implements OnInit {
       title: new FormControl("", Validators.required),
       description: new FormControl("", Validators.required),
       price: new FormControl("", Validators.required),
-      stock: new FormControl(1, [Validators.required]),
+      // stock: new FormControl(1, [Validators.required]),
       published: new FormControl(true),
     });
   }

@@ -58,14 +58,14 @@ export class ListingsPage implements OnInit {
           value: listing.price,
           min: 0,
         },
-        {
-          name: "stock",
-          type: "number",
-          id: "stock",
-          placeholder: this.translate.instant("STOCK"),
-          value: listing.stock,
-          min: 0,
-        },
+        // {
+        //   name: "stock",
+        //   type: "number",
+        //   id: "stock",
+        //   placeholder: this.translate.instant("STOCK"),
+        //   value: listing.stock,
+        //   min: 0,
+        // },
       ],
       buttons: [
         {

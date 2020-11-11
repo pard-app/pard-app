@@ -151,49 +151,49 @@ export const sendListingsToAlgoliaWithLocation = functions
 //     });
 //   });
 
-export const sendVendorsToAlgolia = functions
-  .region("europe-west1")
-  .https.onRequest(async (req, res) => {
-    // This array will contain all records to be indexed in Algolia.
-    // A record does not need to necessarily contain all properties of the Firestore document,
-    // only the relevant ones.
-    const algoliaRecords: any[] = [];
-    const collectionIndex = algoliaClient.initIndex("vendors");
+// export const sendVendorsToAlgolia = functions
+//   .region("europe-west1")
+//   .https.onRequest(async (req, res) => {
+//     // This array will contain all records to be indexed in Algolia.
+//     // A record does not need to necessarily contain all properties of the Firestore document,
+//     // only the relevant ones.
+//     const algoliaRecords: any[] = [];
+//     const collectionIndex = algoliaClient.initIndex("vendors");
 
-    // Retrieve all documents from the COLLECTION collection.
-    const querySnapshot = await db.collection("vendors").get();
+//     // Retrieve all documents from the COLLECTION collection.
+//     const querySnapshot = await db.collection("vendors").get();
 
-    querySnapshot.docs.forEach((doc) => {
-      const document = doc.data();
-      // Essentially, you want your records to contain any information that facilitates search,
-      // display, filtering, or relevance. Otherwise, you can leave it out.
-      const record = {
-        objectID: doc.id,
-        address: document.address,
-        bank: document.bank,
-        company: document.company,
-        country: document.country,
-        delivery: document.delivery,
-        delivery_costs: document.delivery_costs,
-        delivery_note: document.delivery_note,
-        description: document.description,
-        email: document.email,
-        image: document.image,
-        phone: document.phone,
-        registered: document.registered,
-        regno: document.regno,
-        title: document.title,
-        _geoloc: document._geoloc,
-      };
+//     querySnapshot.docs.forEach((doc) => {
+//       const document = doc.data();
+//       // Essentially, you want your records to contain any information that facilitates search,
+//       // display, filtering, or relevance. Otherwise, you can leave it out.
+//       const record = {
+//         objectID: doc.id,
+//         address: document.address,
+//         bank: document.bank,
+//         company: document.company,
+//         country: document.country,
+//         delivery: document.delivery,
+//         delivery_costs: document.delivery_costs,
+//         delivery_note: document.delivery_note,
+//         description: document.description,
+//         email: document.email,
+//         image: document.image,
+//         phone: document.phone,
+//         registered: document.registered,
+//         regno: document.regno,
+//         title: document.title,
+//         _geoloc: document._geoloc,
+//       };
 
-      algoliaRecords.push(record);
-    });
+//       algoliaRecords.push(record);
+//     });
 
-    // After all records are created, we save them to
-    collectionIndex.saveObjects(algoliaRecords, (_error: any, content: any) => {
-      res.status(200).send("Vendors were indexed to Algolia successfully.");
-    });
-  });
+//     // After all records are created, we save them to
+//     collectionIndex.saveObjects(algoliaRecords, (_error: any, content: any) => {
+//       res.status(200).send("Vendors were indexed to Algolia successfully.");
+//     });
+//   });
 
 export const vendorOnCreate = functions
   .region("europe-west1")

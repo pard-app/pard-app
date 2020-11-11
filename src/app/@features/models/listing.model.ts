@@ -4,7 +4,7 @@ export class ListingModel {
   image: string;
   price: number;
   sold: boolean;
-  stock: number;
+  stock?: number;
   title: string;
   id: string;
   vendor: string;

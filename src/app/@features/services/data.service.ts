@@ -87,7 +87,7 @@ export class DataService {
         title: res.title,
         description: res.description,
         price: res.price,
-        stock: res.stock,
+        stock: 1,
       });
   }
 
